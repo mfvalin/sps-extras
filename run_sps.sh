@@ -2,6 +2,7 @@
 [[ "$1" == -v* ]] && set -x
 #
 [[ -d SHM ]]       || { echo "ERROR: directory SHM not found" ; exit 1 ;}
+SHM_VAR=$(readlink -e SHM)
 mkdir -p SHM/storage_model SHM/Data/Input/inrep
 #
 [[ -d Data ]]      || { echo "ERROR: directory Data not found" ; exit 1 ; }
@@ -16,7 +17,6 @@ ln -s ../anal Data/Input/inrep/anal
 if [[ -d storage_model ]] ; then
   storage_model=$(readlink -e storage_model)
 fi
-#grep -q storage_model exper.cfg || echo "storage_model=${storage_model}" >>./exper.cfg
 export storage_model
 #
 [[ -r exper.cfg ]] || { echo "ERROR: cannot find $(pwd -P)/exper.cfg" ; exit 1 ; }
@@ -46,6 +46,8 @@ do
     echo "INFO: prescribed number of years of integration done"
     mkdir -p ${exper_archive}/${exper}.snapshot
     rsync -aruvxlH --delete Data/Input ${exper_archive}/${exper}.snapshot/.
+    rm -rf Data/Input SHM/storage_model
+    [[ "${SHM_VAR}" == /dev/shm* ]] && rm -rf ${SHM_VAR}
     exit 0
   fi
   #
@@ -53,6 +55,8 @@ do
     echo "INFO: last date reached: ${exper_end_date}"
     mkdir -p ${exper_archive}/${exper}.snapshot
     rsync -aruvxlH --delete Data/Input ${exper_archive}/${exper}.snapshot/.
+    rm -rf Data/Input SHM/storage_model
+    [[ "${SHM_VAR}" == /dev/shm* ]] && rm -rf ${SHM_VAR}
     exit 0
   fi
   #
