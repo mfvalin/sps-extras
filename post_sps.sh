@@ -32,9 +32,9 @@ bemol -src OUT/*/pm${FileDate}000000-??-??_000000h -dst OUT/${exper}_${FileDate}
 #
 # copy output file to archive after making it read only (background copy)
 #
-mkdir -p ${exper_archive}/${exper}
+mkdir -p ${exper_archive}/${exper}/Samples  ${exper_archive}/${exper}/Analysis
 chmod 444 OUT/${exper}_${FileDate}
-cp OUT/${exper}_${FileDate} ${exper_archive}/${exper}/${exper}_${FileDate}${Extension} &
+cp OUT/${exper}_${FileDate} ${exper_archive}/${exper}/Samples/${exper}_${FileDate}${Extension} &
 #
 # extract last time frame to be used as part of initial conditions for next integration
 #
@@ -72,13 +72,13 @@ wait   # for copy to archive completion
 rm -f OUT/${exper}_${FileDate}
 rm -f Data/Input/anal
 set -x
-cp OUT/${exper}_anal ${exper_archive}/${exper}/anal_depart_${CurrentDate}${Extension}
-chmod 444 ${exper_archive}/${exper}/anal_depart_${CurrentDate}${Extension}
+cp OUT/${exper}_anal ${exper_archive}/${exper}/Analysis/anal_depart_${CurrentDate}${Extension}
+chmod 444 ${exper_archive}/${exper}/Analysis/anal_depart_${CurrentDate}${Extension}
 rm -f Data/Input/anal_${CurrentDate}
 cp OUT/${exper}_anal Data/Input/anal_${CurrentDate}
 rm -f OUT/${exper}_anal
 #
-[[ -r ${exper_archive}/${exper}/anal_depart_${CurrentDate}${Extension} ]] || \
+[[ -r ${exper_archive}/${exper}/Analysis/anal_depart_${CurrentDate}${Extension} ]] || \
    { echo "ERROR: failed to create initial conditions file anal_depart_${CurrentDate}${Extension}" ; exit 1; }
 #
 # update exper_current_date
@@ -89,7 +89,7 @@ update_cfg exper.cfg exper_current_date ${CurrentDate}
 # bump extension for initial conditions file
 #
 if [[ ${CurrentDate} == *0101 ]] ; then
-  mv ${exper_archive}/${exper}/anal_depart_${CurrentDate}${Extension} ${exper_archive}/${exper}/anal_depart_${CurrentDate}${Extension2}
+  mv ${exper_archive}/${exper}/Analysis/anal_depart_${CurrentDate}${Extension} ${exper_archive}/${exper}/Analysis/anal_depart_${CurrentDate}${Extension2}
   update_cfg exper.cfg exper_cycle_year $((${exper_cycle_year:-999999}-1))
   update_cfg exper.cfg exper_current_year $((${exper_current_year:--1}+1))
 fi

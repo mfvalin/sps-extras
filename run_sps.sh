@@ -66,8 +66,9 @@ do
   pre_sps.sh  || { echo "ERROR: pre_sps failed" ; exit 1 ; }
   #
   echo "INFO: sps.ksh ${exper_cpu_config}"
-  sps.ksh ${exper_cpu_config} >sps_${exper_current_date:-${exper_start_date}}${Extension}.lst 2>&1 \
-    || sps.ksh ${exper_cpu_config2} >sps_${exper_current_date:-${exper_start_date}}${Extension}.lst.2 2>&1 \
+  mkdir -p   ${exper_archive}/${exper}/Listings
+  sps.ksh ${exper_cpu_config} >${exper_archive}/${exper}/Listings/sps_${exper_current_date:-${exper_start_date}}${Extension}.lst 2>&1 \
+    || sps.ksh ${exper_cpu_config2} >${exper_archive}/${exper}/Listings/sps_${exper_current_date:-${exper_start_date}}${Extension}.lst.2 2>&1 \
     || { echo "ERROR: sps.ksh failed" ; exit 1 ; }
   #
   post_sps.sh  || { echo "ERROR: post_sps failed" ; exit 1 ; }
