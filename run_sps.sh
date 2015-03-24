@@ -70,8 +70,10 @@ do
   sps.ksh ${exper_cpu_config} >${exper_archive}/${exper}/Listings/sps_${exper_current_date:-${exper_start_date}}${Extension}.lst 2>&1 \
     || sps.ksh ${exper_cpu_config2} >${exper_archive}/${exper}/Listings/sps_${exper_current_date:-${exper_start_date}}${Extension}.lst.2 2>&1 \
     || { echo "ERROR: sps.ksh failed" ; exit 1 ; }
+  gzip -9 ${exper_archive}/${exper}/Listings/sps_${exper_current_date:-${exper_start_date}}${Extension}.lst*  &
   #
   post_sps.sh  || { echo "ERROR: post_sps failed" ; exit 1 ; }
+  wait
   #
   source ./exper.cfg
   [[ "${exper_current_date}" != "${exper_fold_date}" ]] && rm -f Data/Input/anal_${exper_fold_date}
