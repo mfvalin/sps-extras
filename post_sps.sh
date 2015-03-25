@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-[[ -r exper.cfg ]] || { echo "ERROR: cannot find $(pwd -P)/exper.cfg" ; exit 1 ; }
-source ./exper.cfg
-[[ -n ${exper_current_date} ]] || { echo "ERROR: exper_current_date not found in exper.cfg" ; exit 1 ; }
+[[ -r configexp.cfg ]] || { echo "ERROR: cannot find $(pwd -P)/configexp.cfg" ; exit 1 ; }
+source ./configexp.cfg
+[[ -n ${exper_current_date} ]] || { echo "ERROR: exper_current_date not found in configexp.cfg" ; exit 1 ; }
 #
 source functions_sps.dot
 #
@@ -83,13 +83,13 @@ rm -f OUT/${exper}_anal
 #
 # update exper_current_date
 #
-update_cfg exper.cfg exper_current_date ${CurrentDate}
+update_cfg configexp.cfg exper_current_date ${CurrentDate}
 #
 # if CurrentDate is january 1st, we have done a year of integration, bump down exper_cycle_year
 # bump extension for initial conditions file
 #
 if [[ ${CurrentDate} == *0101 ]] ; then
   mv ${exper_archive}/${exper}/Analysis/anal_depart_${CurrentDate}${Extension} ${exper_archive}/${exper}/Analysis/anal_depart_${CurrentDate}${Extension2}
-  update_cfg exper.cfg exper_cycle_year $((${exper_cycle_year:-999999}-1))
-  update_cfg exper.cfg exper_current_year $((${exper_current_year:--1}+1))
+  update_cfg configexp.cfg exper_cycle_year $((${exper_cycle_year:-999999}-1))
+  update_cfg configexp.cfg exper_current_year $((${exper_current_year:--1}+1))
 fi

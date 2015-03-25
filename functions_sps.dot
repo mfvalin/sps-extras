@@ -1,5 +1,5 @@
+# update_cfg config_file_name variable_name value
 update_cfg() {
-# update_cfg config_file variable value
   ConfigFile="${1}"
   [[ -f "${ConfigFile}" ]] || return 1
   [[ -n $2 ]]  || return 1
@@ -7,4 +7,11 @@ update_cfg() {
   grep -v "^[ ]*${VariableName}=" ${ConfigFile} >${ConfigFile}.new
   mv ${ConfigFile}.new ${ConfigFile}
   [[ -n $3 ]] && echo "${VariableName}='${3}'" >>${ConfigFile}
+}
+# clean runtime directories at end of run, no arguments
+cleanup_dirs() {
+  mkdir -p ${exper_archive}/${exper}.snapshot
+  rsync -aruvxlH --delete Data/Input ${exper_archive}/${exper}.snapshot/.
+  rm -rf Data/Input SHM/storage_model
+  [[ "${SHM_VAR}" == /dev/shm* ]] && rm -rf ${SHM_VAR}
 }

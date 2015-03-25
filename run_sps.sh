@@ -19,8 +19,8 @@ if [[ -d storage_model ]] ; then
 fi
 export storage_model
 #
-[[ -r exper.cfg ]] || { echo "ERROR: cannot find $(pwd -P)/exper.cfg" ; exit 1 ; }
-source ./exper.cfg
+[[ -r configexp.cfg ]] || { echo "ERROR: cannot find $(pwd -P)/configexp.cfg" ; exit 1 ; }
+source ./configexp.cfg
 source functions_sps.dot
 if [[ -d ${exper_archive}/${exper}.snapshot ]] ; then
   rsync -aruvxlH ${exper_archive}/${exper}.snapshot/. Data/.
@@ -29,41 +29,35 @@ fi
 #
 # make sure that there is a value for exper_current_date, exper_fold_date and storage_model in configuration file
 #
-[[ -z ${exper_current_date} ]] && exper_current_date=${exper_start_date} && echo "exper_current_date=${exper_current_date}" >>exper.cfg
+[[ -z ${exper_current_date} ]] && exper_current_date=${exper_start_date} && echo "exper_current_date=${exper_current_date}" >>configexp.cfg
 #
-[[ -z ${exper_fold_date} ]] && exper_fold_date="$(date -d${exper_end_date}+1year  +%Y%m%d)" && echo "exper_fold_date=${exper_fold_date}" >>./exper.cfg
+[[ -z ${exper_fold_date} ]] && exper_fold_date="$(date -d${exper_end_date}+1year  +%Y%m%d)" && echo "exper_fold_date=${exper_fold_date}" >>./configexp.cfg
 #
 [[ -d "${storage_model}" ]] || { echo "ERROR: ${storage_model} does not exist" ; exit 1 ; }
 #
 while true
 do
-  source ./exper.cfg
+  source ./configexp.cfg
   #
   Extension=""
   ((exper_current_year>0)) && Extension="$(printf '_%3.3d' ${exper_current_year})"
   #
   if ((${exper_cycle_year:-999999}==0)) ; then
     echo "INFO: prescribed number of years of integration done"
-    mkdir -p ${exper_archive}/${exper}.snapshot
-    rsync -aruvxlH --delete Data/Input ${exper_archive}/${exper}.snapshot/.
-    rm -rf Data/Input SHM/storage_model
-    [[ "${SHM_VAR}" == /dev/shm* ]] && rm -rf ${SHM_VAR}
+    cleanup_dirs
     exit 0
   fi
   #
   if [[ "${exper_current_date}" == "${exper_end_date}" ]] ; then
     echo "INFO: last date reached: ${exper_end_date}"
-    mkdir -p ${exper_archive}/${exper}.snapshot
-    rsync -aruvxlH --delete Data/Input ${exper_archive}/${exper}.snapshot/.
-    rm -rf Data/Input SHM/storage_model
-    [[ "${SHM_VAR}" == /dev/shm* ]] && rm -rf ${SHM_VAR}
+    cleanup_dirs
     exit 0
   fi
   #
   set -x
   if [[ -f Data/Input/anal_${exper_fold_date} ]] ; then
     u.re_tag_date Data/Input/anal_${exper_fold_date} Data/Input/anal_${exper_start_date} $(r.date ${exper_start_date})
-    update_cfg exper.cfg exper_current_date ${exper_start_date}
+    update_cfg configexp.cfg exper_current_date ${exper_start_date}
   fi
   set +x
   #
@@ -79,7 +73,7 @@ do
   post_sps.sh  || { echo "ERROR: post_sps failed" ; exit 1 ; }
   wait
   #
-  source ./exper.cfg
+  source ./configexp.cfg
   [[ "${exper_current_date}" != "${exper_fold_date}" ]] && rm -f Data/Input/anal_${exper_fold_date}
   #
 done

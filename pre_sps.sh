@@ -11,10 +11,10 @@
 #
 # Data/Input might contain anal_YYYYMM left by a previous post_sps.sh
 #
-# local file exper.cfg contains the configuration for this experiment
+# local file configexp.cfg contains the configuration for this experiment
 #
-[[ -r exper.cfg ]] || { echo "ERROR: cannot find $(pwd -P)/exper.cfg" ; exit 1 ; }
-source ./exper.cfg
+[[ -r configexp.cfg ]] || { echo "ERROR: cannot find $(pwd -P)/configexp.cfg" ; exit 1 ; }
+source ./configexp.cfg
 #
 [[ -n "${exper_current_date}" ]] || { echo "ERROR: exper_current_date not set" ; exit 1 ; }
 #
@@ -104,9 +104,11 @@ echo INFO: performing ${Nsteps} timesteps in ${Nhours} hours integration   file=
 #
 # fix Step_runstrt_S and Step_total in sps.cfg
 #
-find . -mindepth 3 -maxdepth 3 -name sps.cfg -exec cp {} sps.cfg_old \;
-sed -e "s/Step_runstrt_S =[^.]*/Step_runstrt_S = '${StepStartDate}/" -e "s/Step_total.*/Step_total = ${Nsteps}/" <sps.cfg_old >sps.cfg_new
-find . -mindepth 3 -maxdepth 3 -name sps.cfg -exec mv sps.cfg_new {} \;
-rm -f sps.cfg_old
-exit 0
+#find . -mindepth 3 -maxdepth 3 -name sps.cfg -exec cp {} sps.cfg_old \;
+#sed -e "s/Step_runstrt_S =[^.]*/Step_runstrt_S = '${StepStartDate}/" -e "s/Step_total.*/Step_total = ${Nsteps}/" <sps.cfg_old >sps.cfg_new 
+sed -e "s/Step_runstrt_S =[^.]*/Step_runstrt_S = '${StepStartDate}/" -e "s/Step_total.*/Step_total = ${Nsteps}/" <sps.cfg >sps.cfg_new  && \
+  mv sps.cfg_new sps.cfg
+#find . -mindepth 3 -maxdepth 3 -name sps.cfg -exec mv sps.cfg_new {} \;
+#rm -f sps.cfg_old
+#exit 0
 #
