@@ -98,7 +98,8 @@ done
 #
 Date1=$(date -d${StepStartDate}GMT0 +%s)
 Date2=$(date -d${StepEndDate}GMT0 +%s)
-Nsteps=$(((Date2-Date1)/10800))
+TimeStep=${exper_deltat:-10800}   # default 3 hour timestep
+Nsteps=$(((Date2-Date1)/TimeStep))
 Nhours=$(((Date2-Date1)/3600))
 echo INFO: performing ${Nsteps} timesteps in ${Nhours} hours integration   file=pm${DaTe}000000-??-??_000000h
 #
@@ -106,7 +107,9 @@ echo INFO: performing ${Nsteps} timesteps in ${Nhours} hours integration   file=
 #
 #find . -mindepth 3 -maxdepth 3 -name sps.cfg -exec cp {} sps.cfg_old \;
 #sed -e "s/Step_runstrt_S =[^.]*/Step_runstrt_S = '${StepStartDate}/" -e "s/Step_total.*/Step_total = ${Nsteps}/" <sps.cfg_old >sps.cfg_new 
-sed -e "s/Step_runstrt_S =[^.]*/Step_runstrt_S = '${StepStartDate}/" -e "s/Step_total.*/Step_total = ${Nsteps}/" <sps.cfg >sps.cfg_new  && \
+sed -e "s/Step_runstrt_S =[^.]*/Step_runstrt_S = '${StepStartDate}/" \
+    -e "s/Step_dt.*/Step_dt = ${TimeStep}./"  \
+    -e "s/Step_total.*/Step_total = ${Nsteps}/" <sps.cfg >sps.cfg_new  && \
   mv sps.cfg_new sps.cfg
 #find . -mindepth 3 -maxdepth 3 -name sps.cfg -exec mv sps.cfg_new {} \;
 #rm -f sps.cfg_old
