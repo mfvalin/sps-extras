@@ -1,6 +1,9 @@
 #!/bin/bash
 [[ "$1" == -v* ]] && set -x
 #
+[[ -r configexp.cfg ]] || { echo "ERROR: cannot find $(pwd -P)/configexp.cfg" ; exit 1 ; }
+source ./configexp.cfg
+#
 [[ -d SHM ]]       || { echo "ERROR: directory SHM not found" ; exit 1 ;}
 SHM_VAR=$(readlink -e SHM)
 mkdir -p SHM/storage_model SHM/Data/Input/inrep
@@ -21,8 +24,6 @@ if [[ -d storage_model ]] ; then
 fi
 export storage_model
 #
-[[ -r configexp.cfg ]] || { echo "ERROR: cannot find $(pwd -P)/configexp.cfg" ; exit 1 ; }
-source ./configexp.cfg
 source functions_sps.dot
 if [[ -d ${exper_archive}/${exper}.snapshot ]] ; then
   rsync -aruvxlH ${exper_archive}/${exper}.snapshot/. Data/.
