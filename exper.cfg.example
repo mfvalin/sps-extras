@@ -1,6 +1,16 @@
 exper='experiment_001'                                            # name of the experiment
 #
+UM_EXEC_climato=Data/Input/climato
+UM_EXEC_geophy=Data/Input/
+UM_EXEC_inrep=Data/Input/inrep
+UM_EXEC_anal=Data/Input/anal
+SPS_phy_intable=$(pwd -P)/physics_input_table
+SPS_dyn_intable=$(pwd -P)/dyn_input_table
+#
 exper_archive=$(pwd -P)/ARCHIVE                                   # where output is to be sent by post_sps.sh
+#
+exper_climato="/home/valin/project/SPS/Data/Input/climato"        # climatological fields
+exper_geophy="/home/valin/project/SPS/Data/Input/Gem_geophy.fst"  # geophysical fields
 #
 # anal_*_YYYYMMDD or anal_*_YYYYMMDD_yyy
 #
@@ -16,8 +26,9 @@ exper_fold_date=19850201                                          # "back to the
 #
 #
 exper_delta='1month'                                              # MUST be 1month for now
-exper_cpu_config='--verbosity=error --ptopo=4x4x1'                # configuration for sps.ksh
-exper_cpu_config2='--verbosity=error --ptopo=3x3x1'               # alternate configuration for sps.ksh
+exper_deltat=21600                                                # model timesteps in seconds
+exper_cpu_config='--intopo=1x1 --btopo=1x1 --verbosity=warning --ptopo=4x4x1'                # configuration for call to sps.ksh
+exper_cpu_config2='--intopo=1x1 --btopo=1x1 --verbosity=warning --ptopo=3x3x1'               # alternate configuration for sps.ksh
 #
 # the following variables get read and adjusted by pre_sps.sh, run_sps.sh, and post_sps.sh
 #   exper_current_date    is the starting date for the current monthly step
@@ -25,6 +36,6 @@ exper_cpu_config2='--verbosity=error --ptopo=3x3x1'               # alternate co
 #                         if exper_current_year == 0 , no extension is used for outputs or initial conditions
 #   exper_cycle_year      is the number of years to run
 #
-exper_current_date='19800101'
+exper_current_date='19790101'
 exper_cycle_year='1'
 exper_current_year='2'

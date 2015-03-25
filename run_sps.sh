@@ -8,8 +8,10 @@ mkdir -p SHM/storage_model SHM/Data/Input/inrep
 [[ -d Data ]]      || { echo "ERROR: directory Data not found" ; exit 1 ; }
 [[ -d Data_disk ]] || { echo "ERROR: directory Data_disk not found" ; exit 1 ; }
 #
-[[ -f Data/Input/climato ]]        || { echo "INFO: copying climato" ; cp -f Data_disk/Input/climato Data/Input ; }
-[[ -f Data/Input/Gem_geophy.fst ]] || { echo "INFO: copying Gem_geophy.fst" ; cp -f Data_disk/Input/Gem_geophy.fst Data/Input ; }
+[[ -f Data/Input/climato ]]        || { echo "INFO: copying climato" ; cp -f ${exper_climato:-DoesNotExist} Data/Input/climato ; }
+[[ -f Data/Input/climato ]]        || { echo "ERROR: climatology file not found" ; exit 1 ; }
+[[ -f Data/Input/Gem_geophy.fst ]] || { echo "INFO: copying Gem_geophy.fst" ; cp -f ${exper_geophy:-DoesNotExist} Data/Input/Gem_geophy.fst ; }
+[[ -f Data/Input/Gem_geophy.fst ]] || { echo "ERROR: geophysical fields file not found" ; exit 1 ; }
 #
 rm -f Data/Input/inrep/anal
 ln -s ../anal Data/Input/inrep/anal
