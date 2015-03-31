@@ -65,7 +65,7 @@ program re_tag_scale
     deet = 0
     npas = 0
     datev = new_datev
-    if(newig1 > 0 .and. newig2 > 0) then
+    if(newig1 > 0 .and. newig2 > 0 .and. grtyp == 'Z') then
       ig1 = newig1
       ig2 = newig2
     endif
