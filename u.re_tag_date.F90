@@ -69,6 +69,7 @@ program re_tag_scale
       ig1 = newig1
       ig2 = newig2
     endif
+    if(mod(datyp,128) .eq. 5 .or. mod(datyp,128) .eq. 1) call copy84(array,ni,nj,array)
     if(mod(datyp,128) .eq. 5) then
       call printstats(array,ni,nj)
     endif
@@ -100,4 +101,14 @@ subroutine printstats(z,ni,nj)
   enddo
   enddo
   print *,'Average value=',total/(ni*nj)
+end subroutine
+subroutine copy84(z,ni,nj,z8)
+  implicit none
+  integer, intent(IN) :: ni,nj
+  real*8, dimension(ni,nj), intent(IN) :: z8
+  real, dimension(ni,nj), intent(OUT) :: z
+  real, dimension(ni,nj) :: temp
+  temp = z8
+  z = temp
+  return
 end subroutine
