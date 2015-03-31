@@ -69,7 +69,7 @@ program re_tag_scale
       ig1 = newig1
       ig2 = newig2
     endif
-    if( (mod(datyp,128) .eq. 5 .or. mod(datyp,128) .eq. 1) .and. nbits == 64) then
+    if( (mod(datyp,128) == 5 .or. mod(datyp,128) == 1) .and. nbits == 64) then
       call copy84(array,ni,nj,array)
       call printstats(array,ni,nj)
       nbits = 32
