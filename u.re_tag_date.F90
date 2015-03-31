@@ -69,12 +69,10 @@ program re_tag_scale
       ig1 = newig1
       ig2 = newig2
     endif
-    if(mod(datyp,128) .eq. 5 .or. mod(datyp,128) .eq. 1) then
+    if(mod(datyp,128) .eq. 5 .or. mod(datyp,128) .eq. 1 .and. nbits == 64) then
       call copy84(array,ni,nj,array)
-      nbits = 32
-    endif
-    if(mod(datyp,128) .eq. 5) then
       call printstats(array,ni,nj)
+      nbits = 32
     endif
     call fstecr(array,array,-nbits,fstdout,datev,deet,npas,ni,nj,nk,ip1,ip2,ip3,typvar,nomvar,etiket,grtyp,ig1,ig2,ig3,ig4,datyp,.false.)
     status = fstsui(fstdin,ni,nj,nk)
