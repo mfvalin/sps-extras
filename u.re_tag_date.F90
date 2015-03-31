@@ -19,7 +19,7 @@ program re_tag_scale
   integer :: newig1, newig2
 
   nargs = command_argument_count()
-  if(nargs < 4) call print_usage
+  if(nargs < 3) call print_usage
   call GET_COMMAND_ARGUMENT(1,old_file)
   call GET_COMMAND_ARGUMENT(2,new_file)
   call GET_COMMAND_ARGUMENT(3,the_new_date)
