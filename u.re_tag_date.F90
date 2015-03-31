@@ -93,7 +93,7 @@ subroutine printstats(z,ni,nj)
   real, dimension(ni,nj), intent(IN) :: Z
   integer :: i,j
   real *8 :: total
-  total == 0.0
+  total = 0.0
   do j = 1 , nj
   do i = 1 , ni
     total = total + z(i,j)
