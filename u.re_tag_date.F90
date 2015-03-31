@@ -69,6 +69,9 @@ program re_tag_scale
       ig1 = newig1
       ig2 = newig2
     endif
+    if(mod(datyp,128) .eq. 5) then
+      call printstats(array,ni,nj)
+    endif
     call fstecr(array,array,-nbits,fstdout,datev,deet,npas,ni,nj,nk,ip1,ip2,ip3,typvar,nomvar,etiket,grtyp,ig1,ig2,ig3,ig4,datyp,.false.)
     status = fstsui(fstdin,ni,nj,nk)
   enddo
@@ -83,4 +86,18 @@ subroutine print_usage()
   implicit none
   print *,'USAGE: u.re_tag_date old_standard_file new_standard_file new_date'
   call qqexit(1)
+end subroutine
+subroutine printstats(z,ni,nj)
+  implicit none
+  integer, intent(IN) :: ni,nj
+  real, dimension(ni,nj), intent(IN) :: Z
+  integer :: i,j
+  real *8 :: total
+  total == 0.0
+  do j = 1 , nj
+  do i = 1 , ni
+    total = total + z(i,j)
+  enddo
+  enddo
+  print *,'Average value=',total/(ni*nj)
 end subroutine
