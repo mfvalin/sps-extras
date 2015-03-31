@@ -15,17 +15,26 @@ program re_tag_scale
   character(len=4) :: nomvar
   character(len=2) :: typvar
   character(len=12) :: etiket
+  character(len=64) :: force_z
+  integer :: newig1, newig2
 
   nargs = command_argument_count()
-  if(nargs /= 3) call print_usage
+  if(nargs < 4) call print_usage
   call GET_COMMAND_ARGUMENT(1,old_file)
   call GET_COMMAND_ARGUMENT(2,new_file)
   call GET_COMMAND_ARGUMENT(3,the_new_date)
+  newig1 = -1
+  newig2 = -1
+  if(nargs >= 4) then
+    call GET_COMMAND_ARGUMENT(4,force_z)
+    read(force_z,*,err=777)newig1,newig2
+    print *,'forcing Z descriptors to',newig1,newig2
+  endif
 
   print *,'u.re_tag_scale '//trim(old_file)//' '//trim(new_file)//' '//trim(the_new_date)
   read(the_new_date,*)new_datev
 
-  print *,'INFO: new date of validity: '//the_new_date,new_datev
+  print *,'INFO: new date of validity: '//trim(the_new_date),new_datev
 
   print *,'INFO: opening input file '//trim(old_file)
   fstdin = 0
@@ -56,6 +65,10 @@ program re_tag_scale
     deet = 0
     npas = 0
     datev = new_datev
+    if(newig1 > 0 .and. newig2 > 0) then
+      ig1 = newig1
+      ig2 = newig2
+    endif
     call fstecr(array,array,-nbits,fstdout,datev,deet,npas,ni,nj,nk,ip1,ip2,ip3,typvar,nomvar,etiket,grtyp,ig1,ig2,ig3,ig4,datyp,.false.)
     status = fstsui(fstdin,ni,nj,nk)
   enddo
@@ -63,6 +76,7 @@ program re_tag_scale
 
   call fstfrm(fstdin)
   call fstfrm(fstdout)
+777 continue
   stop
 end program
 subroutine print_usage()
