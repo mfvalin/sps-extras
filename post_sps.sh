@@ -33,7 +33,7 @@ bemol -src OUT/*/pm${FileDate}000000-??-??_000000h -dst OUT/${exper}_${FileDate}
 # copy output file to archive after making it read only (background copy)
 #
 mkdir -p ${exper_archive}/${exper}/Samples  ${exper_archive}/${exper}/Analysis
-chmod 444 OUT/${exper}_${FileDate}
+chmod 644 OUT/${exper}_${FileDate}
 cp OUT/${exper}_${FileDate} ${exper_archive}/${exper}/Samples/${exper}_${FileDate}${Extension} &
 #
 # extract last time frame to be used as part of initial conditions for next integration
@@ -73,7 +73,7 @@ rm -f OUT/${exper}_${FileDate}
 rm -f Data/Input/anal
 set -x
 cp OUT/${exper}_anal ${exper_archive}/${exper}/Analysis/anal_depart_${CurrentDate}${Extension}
-chmod 444 ${exper_archive}/${exper}/Analysis/anal_depart_${CurrentDate}${Extension}
+chmod 644 ${exper_archive}/${exper}/Analysis/anal_depart_${CurrentDate}${Extension}
 rm -f Data/Input/anal_${CurrentDate}
 cp OUT/${exper}_anal Data/Input/anal_${CurrentDate}
 rm -f OUT/${exper}_anal
