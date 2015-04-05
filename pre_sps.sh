@@ -41,7 +41,7 @@ rm -f Data/Input/anal     # get rid of old initial conditions file
   [[ ${exper_anal0##*/} == anal_*_${StepStartDate} ]] && \
   cp ${exper_anal0} Data/Input/anal_${StepStartDate} &&
   echo "INFO: copying ${exper_anal0} as Data/Input/anal_${StepStartDate}"
-fi
+#
 if [[ -f Data/Input/anal_${StepStartDate} ]] ; then   # normally put there by post_sps or run_sps
   mv Data/Input/anal_${StepStartDate} Data/Input/anal
   echo "INFO: using Data/Input/anal_${StepStartDate} as initial conditions"
