@@ -3,8 +3,8 @@ program fix_ice
   implicit none
   include 'convert_ip123.inc'
   integer, parameter :: NBINS = 8
-  integer, parameter :: ILAYS = 2
-  integer, parameter :: SLAYS = 2
+  integer, parameter :: ILAYS = 4
+  integer, parameter :: SLAYS = ILAYS-1
   real, PARAMETER :: RAYT     =.637122e+7 !  mean radius of the earth
   real *8, parameter :: ONE=1.0
   integer :: ni, nj, nk
