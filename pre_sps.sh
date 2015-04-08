@@ -34,7 +34,14 @@ echo "INFO: running from ${StepStartDate} to ${StepEndDate}, (${Delta})"
 #   ${exper_anal1} ${exper_anal2} are the 2 possible sources
 #   filenames expected to be anal_*_YYYYMMDD${Extension}  (no more than ONE match for a given month)
 #
+[[ -d Data/Input ]] || { echo "ERROR: directory Data/Input does not exist" ; exit 1 ; }
+#
 rm -f Data/Input/anal     # get rid of old initial conditions file
+[[ -f "${exper_anal0}" ]] && \
+  [[ ${exper_anal0##*/} == anal_*_${StepStartDate} ]] && \
+  cp ${exper_anal0} Data/Input/anal_${StepStartDate} &&
+  echo "INFO: copying ${exper_anal0} as Data/Input/anal_${StepStartDate}"
+#
 if [[ -f Data/Input/anal_${StepStartDate} ]] ; then   # normally put there by post_sps or run_sps
   mv Data/Input/anal_${StepStartDate} Data/Input/anal
   echo "INFO: using Data/Input/anal_${StepStartDate} as initial conditions"
