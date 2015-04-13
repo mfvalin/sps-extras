@@ -1,4 +1,7 @@
 program fix_ice
+
+! s.compile -src dynaglace_fix.F90 -o dynaglace_fix.Abs -librmn rmn_015
+
   use ISO_C_BINDING
   implicit none
   include 'convert_ip123.inc'
@@ -8,13 +11,14 @@ program fix_ice
   real, PARAMETER :: RAYT     =.637122e+7 !  mean radius of the earth
   real *8, parameter :: ONE=1.0
   integer :: ni, nj, nk
-  real, dimension(:),     allocatable :: zglmf, zmg, zglacier, zglvol, zgldepth, zglnum
+  real, dimension(:),     allocatable :: zglmf, zmg, zglacier, zglvol, zglvol_tend, zgldepth, zglnum
   real, dimension(:,:),   allocatable :: zbfrac, zglfracb, ztskin, zsnoln, zbheight, zblheight, zdxdy
   real, dimension(:,:,:), allocatable :: ztbot, zsnodp, zsnoden
   integer, external :: fnom, fstouv, fstinf, fstluk, fstfrm, fstlir
   character(len=128) :: geofile, outfile
   integer :: statusg, statuso, fstgeo, fstout, keyg, keygla, keyglo
   real, dimension(:), allocatable :: latp, lonp
+  integer :: dateo_anal,deet_anal,npas_anal
   integer :: nbits,datyp,ip1,ip2,ip3,dateo,deet,npas
   integer :: ig1,ig2,ig3,ig4,swa,lng,dltf,ubc,extra1,extra2,extra3
   character(len=1) :: grtyp
@@ -41,6 +45,12 @@ program fix_ice
   fstout = 0
   statuso = fnom(fstout,trim(outfile),'STD+RND',0)
   statuso = fstouv(fstout,'RND')
+
+  keyg = fstinf(fstout,ni,nj,nk,-1,"",-1,-1,-1,"","UU")
+  call fstprm(keyg,dateo_anal,deet_anal,npas_anal,ni,nj,nk,nbits,datyp,ip1,ip2,ip3, &
+              typvar,nomvar,etiket,grtyp,ig1,ig2,ig3,ig4, &
+              swa,lng,dltf,ubc,extra1,extra2,extra3)
+
 
   keyg = fstinf(fstgeo,ni,nj,nk,-1,"",-1,-1,-1,"","MG")
   call fstprm(keyg,dateo,deet,npas,ni,nj,nk,nbits,datyp,ip1,ip2,ip3, &
@@ -91,6 +101,7 @@ program fix_ice
 
   allocate(zglmf(ni*nj))
   allocate(zglvol(ni*nj))
+  allocate(zglvol_tend(ni*nj))
   allocate(zgldepth(ni*nj))
   allocate(zglfracb(ni*nj,NBINS))
   allocate(ztskin(ni*nj,NBINS))
@@ -99,16 +110,17 @@ program fix_ice
   allocate(ztbot(ni*nj,ILAYS,NBINS))
   allocate(zsnodp(ni*nj,SLAYS,NBINS))
   allocate(zsnoden(ni*nj,SLAYS,NBINS))
-  zglmf     = 0.0
-  zglvol    = 0.0
-  zgldepth  = 0.0
-  zglfracb  = 0.0
-  ztskin    = 0.0
-  zsnoln    = 0.0
-  zblheight = 0.0
-  ztbot     = 0.0
-  zsnodp    = 0.0
-  zsnoden   = 0.0
+  zglmf       = 0.0
+  zglvol      = 0.0
+  zglvol_tend = 0.0
+  zgldepth    = 0.0
+  zglfracb    = 0.0
+  ztskin      = 0.0
+  zsnoln      = 0.0
+  zblheight   = 0.0
+  ztbot       = 0.0
+  zsnodp      = 0.0
+  zsnoden     = 0.0
 
   call dynaglace_ini (zglmf, zdxdy, zbfrac, zmg, zglacier, zglfracb, zglvol, zgldepth, zglnum, &
                       ztskin, ztbot, zsnodp, zsnoden, zbheight, zblheight, zsnoln, &
@@ -116,35 +128,39 @@ program fix_ice
   ip1 = 0
   ip2 = 0
   ip2 = 0
-  call fstecr(zglmf,zglmf,-32,fstout,dateo,0,0,ni,nj,1,ip1,ip2,ip3,'A','GLMF','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
-  call fstecr(zdxdy,zdxdy,-32,fstout,dateo,0,0,ni,nj,1,ip1,ip2,ip3,'A','DXDY','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
-  call fstecr(zglvol,zglvol,-32,fstout,dateo,0,0,ni,nj,1,ip1,ip2,ip3,'A','GVOL','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
-  call fstecr(zgldepth,zgldepth,-32,fstout,dateo,0,0,ni,nj,1,ip1,ip2,ip3,'A','GLD ','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
+  dateo = dateo_anal
+  deet  = deet_anal
+  npas  = npas_anal
+  call fstecr(zglmf,zglmf,-32,fstout,dateo,deet,npas,ni,nj,1,ip1,ip2,ip3,'A','GLMF','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
+  call fstecr(zdxdy,zdxdy,-32,fstout,dateo,deet,npas,ni,nj,1,ip1,ip2,ip3,'A','DXDY','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
+  call fstecr(zglvol,zglvol,-32,fstout,dateo,deet,npas,ni,nj,1,ip1,ip2,ip3,'A','GVOL','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
+  call fstecr(zglvol_tend,zglvol_tend,-32,fstout,dateo,0,0,ni,nj,1,ip1,ip2,ip3,'A','GVLT','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
+  call fstecr(zgldepth,zgldepth,-32,fstout,dateo,deet,npas,ni,nj,1,ip1,ip2,ip3,'A','GLD ','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
 
   do i = 1 , NBINS
     p = 1.0 * i
     kind = KIND_ARBITRARY
     call CONVIP_plus( ip, p, kind, +2, dummy, .false. )
-    call fstecr(zbfrac,   zbfrac,   -32,fstout,dateo,0,0,ni,nj,1,ip,ip2,ip3,'A','BFR ','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
-    call fstecr(zglfracb, zglfracb, -32,fstout,dateo,0,0,ni,nj,1,ip,ip2,ip3,'A','BGLF','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
-    call fstecr(ztskin,   ztskin,   -32,fstout,dateo,0,0,ni,nj,1,ip,ip2,ip3,'A','TSG ','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
-    call fstecr(zsnoln,   zsnoln,   -32,fstout,dateo,0,0,ni,nj,1,ip,ip2,ip3,'A','NSNL','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
-    call fstecr(zblheight,zblheight,-32,fstout,dateo,0,0,ni,nj,1,ip,ip2,ip3,'A','BLME','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
+    call fstecr(zbfrac,   zbfrac,   -32,fstout,dateo,deet,npas,ni,nj,1,ip,ip2,ip3,'A','BFR ','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
+    call fstecr(zglfracb, zglfracb, -32,fstout,dateo,deet,npas,ni,nj,1,ip,ip2,ip3,'A','BGLF','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
+    call fstecr(ztskin,   ztskin,   -32,fstout,dateo,deet,npas,ni,nj,1,ip,ip2,ip3,'A','TSG ','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
+    call fstecr(zsnoln,   zsnoln,   -32,fstout,dateo,deet,npas,ni,nj,1,ip,ip2,ip3,'A','NSNL','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
+    call fstecr(zblheight,zblheight,-32,fstout,dateo,deet,npas,ni,nj,1,ip,ip2,ip3,'A','BLME','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
   enddo
 
   do i = 1 , NBINS*ILAYS
     p = 1.0 * i
     kind = KIND_ARBITRARY
     call CONVIP_plus( ip, p, kind, +2, dummy, .false. )
-    call fstecr(ztbot,    ztbot,    -32,fstout,dateo,0,0,ni,nj,1,ip,ip2,ip3,'A','ITGL','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
+    call fstecr(ztbot,    ztbot,    -32,fstout,dateo,deet,npas,ni,nj,1,ip,ip2,ip3,'A','ITGL','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
   enddo
 
   do i = 1 , NBINS*SLAYS
     p = 1.0 * i
     kind = KIND_ARBITRARY
     call CONVIP_plus( ip, p, kind, +2, dummy, .false. )
-    call fstecr(zsnodp,   zsnodp,   -32,fstout,dateo,0,0,ni,nj,1,ip,ip2,ip3,'A','SDG ','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
-    call fstecr(zsnoden,  zsnoden,  -32,fstout,dateo,0,0,ni,nj,1,ip,ip2,ip3,'A','SDN ','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
+    call fstecr(zsnodp,   zsnodp,   -32,fstout,dateo,deet,npas,ni,nj,1,ip,ip2,ip3,'A','SDG ','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
+    call fstecr(zsnoden,  zsnoden,  -32,fstout,dateo,deet,npas,ni,nj,1,ip,ip2,ip3,'A','SDN ','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
   enddo
 
   call fstprm(keygla,dateo,deet,npas,ni,nj,nk,nbits,datyp,ip1,ip2,ip3, &
