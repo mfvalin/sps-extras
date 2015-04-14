@@ -91,5 +91,5 @@ update_cfg configexp.cfg exper_current_date ${CurrentDate}
 if [[ ${CurrentDate} == *0101 ]] ; then
   mv ${exper_archive}/${exper}/Analysis/anal_depart_${CurrentDate}${Extension} ${exper_archive}/${exper}/Analysis/anal_depart_${CurrentDate}${Extension2}
   update_cfg configexp.cfg exper_cycle_year $((${exper_cycle_year:-999999}-1))
-  update_cfg configexp.cfg exper_current_year $((${exper_current_year:--1}+1))
+  ((exper_current_year>0)) && update_cfg configexp.cfg exper_current_year $((${exper_current_year:--1}+1))
 fi
