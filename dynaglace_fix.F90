@@ -125,11 +125,11 @@ program fix_ice
     p = 1.0 * i
     kind = KIND_ARBITRARY
     call CONVIP_plus( ip, p, kind, +2, dummy, .false. )
-    call fstecr(zbfrac,   zbfrac,   -32,fstout,dateo,0,0,ni,nj,1,ip,ip2,ip3,'A','BFR ','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
-    call fstecr(zglfracb, zglfracb, -32,fstout,dateo,0,0,ni,nj,1,ip,ip2,ip3,'A','BGLF','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
-    call fstecr(ztskin,   ztskin,   -32,fstout,dateo,0,0,ni,nj,1,ip,ip2,ip3,'A','TSG ','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
-    call fstecr(zsnoln,   zsnoln,   -32,fstout,dateo,0,0,ni,nj,1,ip,ip2,ip3,'A','NSNL','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
-    call fstecr(zblheight,zblheight,-32,fstout,dateo,0,0,ni,nj,1,ip,ip2,ip3,'A','BLME','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
+    call fstecr(zbfrac(1,i),   zbfrac(1,i),   -32,fstout,dateo,0,0,ni,nj,1,ip,ip2,ip3,'A','BFR ','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
+    call fstecr(zglfracb(1,i), zglfracb(1,i), -32,fstout,dateo,0,0,ni,nj,1,ip,ip2,ip3,'A','BGLF','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
+    call fstecr(ztskin(1,i),   ztskin(1,i),   -32,fstout,dateo,0,0,ni,nj,1,ip,ip2,ip3,'A','TSG ','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
+    call fstecr(zsnoln(1,i),   zsnoln(1,i),   -32,fstout,dateo,0,0,ni,nj,1,ip,ip2,ip3,'A','NSNL','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
+    call fstecr(zblheight(1,i),zblheight(1,i),-32,fstout,dateo,0,0,ni,nj,1,ip,ip2,ip3,'A','BLME','DIAGNOSTIQUE','Z',ig1,ig2,ig3,ig4,133,.false.)
   enddo
 
   do i = 1 , NBINS*ILAYS
