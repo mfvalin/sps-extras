@@ -169,8 +169,8 @@ program re_tag_scale
     call fstecr(vf(:,:,i),vf(:,:,i),-32,fstdout,dateo,0,0,ni,nj,1,ip,ip2,ip3,typvar,'VF',etiket,grtyp,ig1,ig2,ig3,ig4,133,.false.)
   enddo
   ip = 0
-  call fstecr(ga,ga,-32,fstdout,dateo,0,0,ni,nj,1,ip,ip2,ip3,typvar,'MG',etiket,grtyp,ig1,ig2,ig3,ig4,133,.false.)
-  call fstecr(mg,mg,-32,fstdout,dateo,0,0,ni,nj,1,ip,ip2,ip3,typvar,'GA',etiket,grtyp,ig1,ig2,ig3,ig4,133,.false.)
+  call fstecr(ga,ga,-32,fstdout,dateo,0,0,ni,nj,1,ip,ip2,ip3,typvar,'GA',etiket,grtyp,ig1,ig2,ig3,ig4,133,.false.)
+  call fstecr(mg,mg,-32,fstdout,dateo,0,0,ni,nj,1,ip,ip2,ip3,typvar,'MG',etiket,grtyp,ig1,ig2,ig3,ig4,133,.false.)
 
   call fstfrm(fstdin)
   call fstfrm(fstdout)
