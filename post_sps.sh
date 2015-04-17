@@ -94,3 +94,5 @@ if [[ ${CurrentDate} == *0101 ]] ; then
   ((exper_current_year>0)) && update_cfg configexp.cfg exper_current_year $((${exper_current_year:--1}+1))
   true
 fi
+true
+
