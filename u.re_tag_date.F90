@@ -18,7 +18,9 @@ program re_tag_scale
   character(len=64) :: force_z
   integer :: newig1, newig2
   integer :: renamed, rescaled
+  logical :: fix_records
 
+  fix_records = .false.
   nargs = command_argument_count()
   if(nargs < 3) call print_usage
   call GET_COMMAND_ARGUMENT(1,old_file)
@@ -30,8 +32,12 @@ program re_tag_scale
   rescaled = 0
   if(nargs >= 4) then
     call GET_COMMAND_ARGUMENT(4,force_z)
-    read(force_z,*,err=777)newig1,newig2
-    print *,'forcing Z descriptors to',newig1,newig2
+    if(trim(force_z) == '--FIX') then
+      fix_records = .true.
+    else
+      read(force_z,*,err=777)newig1,newig2
+      print *,'forcing Z descriptors to',newig1,newig2
+    endif
   endif
 
   print *,'u.re_tag_scale '//trim(old_file)//' '//trim(new_file)//' '//trim(the_new_date)
@@ -67,7 +73,7 @@ program re_tag_scale
                 swa,lng,dltf,ubc,extra1,extra2,extra3)
     deet = 0
     npas = 0
-    datev = new_datev
+    if(new_datev .ne. -1) datev = new_datev
     if(newig1 > 0 .and. newig2 > 0 .and. grtyp == 'Z') then
       ig1 = newig1
       ig2 = newig2
@@ -77,12 +83,12 @@ program re_tag_scale
       call printstats(array,ni,nj)
       nbits = 32
     endif
-    if (nomvar == 'GL') then  ! rename GL to LG
+    if (nomvar == 'GL  ' .and. fix_records) then  ! rename GL to LG
       renamed = renamed + 1
       if(renamed == 1) print *,'INFO: GL will be renamed LG'
-      nomvar = 'LG'
+      nomvar = 'LG  '
     endif
-    if (nomvar == 'TM') then  ! TM converted to Celsius
+    if (nomvar == 'TM  ' .and. fix_records) then  ! TM converted to Celsius
       rescaled = rescaled + 1
       if(rescaled == 1)print *,'INFO: TM will be converted to Celsius '
       call rescale(array,ni,nj,1.0,-273.16)

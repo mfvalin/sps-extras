@@ -48,6 +48,8 @@ EOT
 echo editfst -s OUT/${exper}_${FileDate} -d OUT/${exper}_anal -i editfst1.dir
 ls -l OUT/${exper}_${FileDate}
 editfst -s OUT/${exper}_${FileDate} -d OUT/${exper}_anal -i editfst1.dir
+u.re_tag_date OUT/${exper}_anal OUT/${exper}_anal_fixed -1 --FIX
+mv OUT/${exper}_anal_fixed OUT/${exper}_anal
 rm -f editfst1.dir
 #
 # get dynamic initial conditions for next integration from driving data file
