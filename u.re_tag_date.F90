@@ -48,17 +48,18 @@ program re_tag_scale
   print *,'INFO: opening input file '//trim(old_file)
   fstdin = 0
   i = fnom(fstdin,trim(old_file),'STD+RND+OLD+R/O',0)
-  print *,'DEBUG: fstdin=',fstdin
+!  print *,'DEBUG: fstdin=',fstdin
   i = fstouv(fstdin,'RND')
-  print *,'DEBUG: status of fstouv fstdin =',i
+!  print *,'DEBUG: status of fstouv fstdin =',i
 
   print *,'INFO: opening output file '//trim(new_file)
   fstdout = 0
   i = fnom(fstdout,trim(new_file),'STD+RND',0)
-  print *,'DEBUG: fstdout=',fstdout
+!  print *,'DEBUG: fstdout=',fstdout
   i = fstouv(fstdout,'RND')
-  print *,'DEBUG: status of fstouv fstdout =',i
+!  print *,'DEBUG: status of fstouv fstdout =',i
 
+  call fstopc('MSGLVL','ERRORS',0)
   nrec = 0
   allocate(array(1000,1000))
   status = fstinf(fstdin,ni,nj,nk,-1,"",-1,-1,-1,"","")
