@@ -17,6 +17,7 @@ program re_tag_scale
   character(len=12) :: etiket
   character(len=64) :: force_z
   integer :: newig1, newig2
+  integer :: renamed, rescaled
 
   nargs = command_argument_count()
   if(nargs < 3) call print_usage
@@ -25,6 +26,8 @@ program re_tag_scale
   call GET_COMMAND_ARGUMENT(3,the_new_date)
   newig1 = -1
   newig2 = -1
+  renamed = 0
+  rescaled = 0
   if(nargs >= 4) then
     call GET_COMMAND_ARGUMENT(4,force_z)
     read(force_z,*,err=777)newig1,newig2
@@ -74,10 +77,22 @@ program re_tag_scale
       call printstats(array,ni,nj)
       nbits = 32
     endif
+    if (nomvar == 'GL') then  ! rename GL to LG
+      renamed = renamed + 1
+      if(renamed == 1) print *,'INFO: GL will be renamed LG'
+      nomvar = 'LG'
+    endif
+    if (nomvar == 'TM') then  ! TM converted to Celsius
+      rescaled = rescaled + 1
+      if(rescaled == 1)print *,'INFO: TM will be converted to Celsius '
+      call rescale(array,ni,nj,1.0,-273.16)
+    endif
     call fstecr(array,array,-nbits,fstdout,datev,deet,npas,ni,nj,nk,ip1,ip2,ip3,typvar,nomvar,etiket,grtyp,ig1,ig2,ig3,ig4,datyp,.false.)
     status = fstsui(fstdin,ni,nj,nk)
   enddo
   print *,'INFO: number of records read and written =',nrec
+  if(rescaled > 0) print *,'INFO: number of rescaled TM records:',rescaled
+  if(renamed > 0)  print *,'INFO: number of renamed GLrecords:',renamed
 
   call fstfrm(fstdin)
   call fstfrm(fstdout)
@@ -113,3 +128,11 @@ subroutine copy84(z,ni,nj,z8)
   z = temp
   return
 end subroutine
+subroutine rescale(array,ni,nj,factor,offset)
+  implicit none
+  integer, intent(IN) :: ni, nj
+  real, dimension(ni,nj), intent(INOUT) :: array
+  real, intent(IN) :: factor, offset
+  array = array*factor + offset
+  return
+end
