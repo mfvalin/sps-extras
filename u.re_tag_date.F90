@@ -94,20 +94,20 @@ program re_tag_scale
     endif
     if (nomvar == 'GL  ' .and. fix_records) then  ! rename GL to LG
       renamed = renamed + 1
-      if(renamed == 1) print *,'INFO: GL will be renamed LG'
+      print *,'INFO: GL renamed LG'
       nomvar = 'LG  '
     endif
     if (nomvar == 'TM  ' .and. fix_records) then  ! TM converted to Celsius
       rescaled = rescaled + 1
-      if(rescaled == 1)print *,'INFO: TM will be converted to Celsius '
+      print *,'INFO: TM converted to Celsius '
       call rescale(array,ni,nj,1.0,-273.16)
     endif
     call fstecr(array,array,-nbits,fstdout,datev,deet,npas,ni,nj,nk,ip1,ip2,ip3,typvar,nomvar,etiket,grtyp,ig1,ig2,ig3,ig4,datyp,.false.)
     status = fstsui(fstdin,ni,nj,nk)
   enddo
   print *,'INFO: number of records read and written =',nrec
-  if(rescaled > 0) print *,'INFO: number of rescaled TM records:',rescaled
-  if(renamed > 0)  print *,'INFO: number of renamed GLrecords:',renamed
+  if(rescaled > 0) print *,'INFO: number of converted records:',rescaled
+  if(renamed > 0)  print *,'INFO: number of renamed records:',renamed
 
   call fstfrm(fstdin)
   call fstfrm(fstdout)
