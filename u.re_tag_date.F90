@@ -71,9 +71,13 @@ program re_tag_scale
     call fstprm(status,dateo,deet,npas,ni,nj,nk,nbits,datyp,ip1,ip2,ip3, &
                 typvar,nomvar,etiket,grtyp,ig1,ig2,ig3,ig4, &
                 swa,lng,dltf,ubc,extra1,extra2,extra3)
-    deet = 0
-    npas = 0
-    if(new_datev .ne. -1) datev = new_datev
+    if(new_datev > 0) then
+      deet = 0
+      npas = 0
+      datev = new_datev
+    else
+      datev = dateo
+    endif
     if(newig1 > 0 .and. newig2 > 0 .and. grtyp == 'Z') then
       ig1 = newig1
       ig2 = newig2
