@@ -87,6 +87,10 @@ program re_tag_scale
       call printstats(array,ni,nj)
       nbits = 32
     endif
+    if (nomvar == 'I2  ' .and. fix_records .and. ip1 == 0) then
+      ip1 = 59868832   ! arbitrary code 1
+      print *,'INFO: I2 level changed from 0 mb to 1 arbitratry'
+    endif
     if (nomvar == 'GL  ' .and. fix_records) then  ! rename GL to LG
       renamed = renamed + 1
       if(renamed == 1) print *,'INFO: GL will be renamed LG'
