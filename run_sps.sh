@@ -46,7 +46,7 @@ rm -f SPS_cfgs/cfg_0000
 ln -s $(pwd -P) SPS_cfgs/cfg_0000
 #
 SHM_VAR=$(readlink -e SHM)
-mkdir -p SHM/storage_model SHM/Data/Input/inrep
+[[ -L SHM && -d SHM/ ]] && mkdir -p SHM/storage_model SHM/Data/Input/inrep
 [[ -d SHM/storage_model ]]    ||  { echo "ERROR: SHM/storage_model directory not found" ; ((FatalError=FatalError+1)) ; }
 [[ -d SHM/Data/Input/inrep ]] ||  { echo "ERROR: SHM/Data/Input/inrep directory not found" ; ((FatalError=FatalError+1)) ; }
 #
