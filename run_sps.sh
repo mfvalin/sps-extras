@@ -6,54 +6,58 @@ if tty -s ; then    # interactive case, raise default memory limits
 fi
 [[ "$1" == -v* ]] && set -x
 #
-[[ -r configexp.cfg ]] || { echo "ERROR: cannot find configexp.cfg" ; exit 1 ; }
-[[ -r sps.cfg ]]       || { echo "ERROR: cannot find sps.cfg" ; exit 1 ; }
-[[ -r sps.dict ]]      || { echo "ERROR: cannot find sps.dict" ; exit 1 ; }
-[[ -r outcfg.out ]]    || { echo "ERROR: cannot find outcfg.out" ; exit 1 ; }
+unset FatalError
+((FatalError=0))
+[[ -r configexp.cfg ]] || { echo "ERROR: cannot find configexp.cfg" ; ((FatalError=FatalError+1)) ; }
+[[ -r sps.cfg ]]       || { echo "ERROR: cannot find sps.cfg" ; ((FatalError=FatalError+1)) ; }
+[[ -r sps.dict ]]      || { echo "ERROR: cannot find sps.dict" ; ((FatalError=FatalError+1)) ; }
+[[ -r outcfg.out ]]    || { echo "ERROR: cannot find outcfg.out" ; ((FatalError=FatalError+1)) ; }
 source ./configexp.cfg
-[[ -d sps_Linux_x86-64.Abs ]] && echo "ERROR: expecting file for sps_Linux_x86-64.Abs" && exit 1
+[[ -d sps_Linux_x86-64.Abs ]] && echo "ERROR: expecting file for sps_Linux_x86-64.Abs" && ((FatalError=FatalError+1))
 [[ -x sps_Linux_x86-64.Abs ]] || ln -sf "${exper_abs:-/dev/null}" sps_Linux_x86-64.Abs
-[[ -x sps_Linux_x86-64.Abs ]] || { echo "ERROR: cannot find executable sps_Linux_x86-64.Abs" ; exit 1 ; }
-[[ -r ${SPS_phy_intable} ]] || { echo "ERROR: cannot find ${SPS_phy_intable}" ; exit 1 ; }
-[[ -r ${SPS_dyn_intable} ]] || { echo "ERROR: cannot find ${SPS_dyn_intable}" ; exit 1 ; }
-[[ -d ${exper_archive} ]]   || { echo "ERROR: archival directory not found" ; exit 1 ; }
+[[ -x sps_Linux_x86-64.Abs ]] || { echo "ERROR: cannot find executable sps_Linux_x86-64.Abs" ; ((FatalError=FatalError+1)) ; }
+[[ -r ${SPS_phy_intable} ]] || { echo "ERROR: cannot find ${SPS_phy_intable}" ; ((FatalError=FatalError+1)) ; }
+[[ -r ${SPS_dyn_intable} ]] || { echo "ERROR: cannot find ${SPS_dyn_intable}" ; ((FatalError=FatalError+1)) ; }
+[[ -d ${exper_archive} ]]   || { echo "ERROR: archival directory not found" ; ((FatalError=FatalError+1)) ; }
 #
-[[ -L SHM && -d SHM ]]      || { echo "ERROR: SHM must be a soft link to an existing directory" ; exit 1 ;}
+[[ -L SHM && -d SHM ]]      || { echo "ERROR: SHM must be a soft link to an existing directory" ; ((FatalError=FatalError+1)) ;}
 #
 # create link to OUT
 #
 rm -f OUT
-[[ -d OUT ]] && { echo "ERROR: OUT is an existing directory and should not" ; exit 1 ;}
+[[ -d OUT ]] && { echo "ERROR: OUT is an existing directory and should not" ; ((FatalError=FatalError+1)) ;}
 ln -s __workdir__Linux_x86-64/output/cfg_0000 OUT
 #
 rm -f storage_model
-[[ -d storage_model ]] && { echo "ERROR: storage_model is an existing directory and should not" ; exit 1 ;}
+[[ -d storage_model ]] && { echo "ERROR: storage_model is an existing directory and should not" ; ((FatalError=FatalError+1)) ;}
 ln -s SHM/storage_model storage_model
 #
 # make sure include is linked to current directory
 #
 rm -f include
-[[ -d include ]] && { echo "ERROR: include is an existing directory and should not" ; exit 1 ;}
+[[ -d include ]] && { echo "ERROR: include is an existing directory and should not" ; ((FatalError=FatalError+1)) ;}
 ln -s . include
 #
 # make sure SPS_cfgs/cfg_0000 points to surrent directory
 #
 mkdir -p SPS_cfgs
 rm -f SPS_cfgs/cfg_0000
-[[ -d SPS_cfgs/cfg_0000 ]] && { echo "ERROR: SPS_cfgs/cfg_0000 is an existing directory and should not" ; exit 1 ;}
+[[ -d SPS_cfgs/cfg_0000 ]] && { echo "ERROR: SPS_cfgs/cfg_0000 is an existing directory and should not" ; ((FatalError=FatalError+1)) ;}
 ln -s $(pwd -P) SPS_cfgs/cfg_0000
 #
 SHM_VAR=$(readlink -e SHM)
 mkdir -p SHM/storage_model SHM/Data/Input/inrep
-[[ -d SHM/storage_model ]]    ||  { echo "ERROR: SHM/storage_model directory not found" ; exit 1 ; }
-[[ -d SHM/Data/Input/inrep ]] ||  { echo "ERROR: SHM/Data/Input/inrep directory not found" ; exit 1 ; }
+[[ -d SHM/storage_model ]]    ||  { echo "ERROR: SHM/storage_model directory not found" ; ((FatalError=FatalError+1)) ; }
+[[ -d SHM/Data/Input/inrep ]] ||  { echo "ERROR: SHM/Data/Input/inrep directory not found" ; ((FatalError=FatalError+1)) ; }
 #
 rm -f Data
-[[ -d Data ]] && { echo "ERROR: Data is an existing directory and should not" ; exit 1 ;}
+[[ -d Data ]] && { echo "ERROR: Data is an existing directory and should not" ; ((FatalError=FatalError+1)) ;}
 ln -s SHM/Data Data
 #
-[[ -d Data ]]      || { echo "ERROR: directory Data not found" ; exit 1 ; }
-[[ -d Data_disk ]] || { echo "ERROR: directory Data_disk not found" ; exit 1 ; }
+[[ -d Data ]]      || { echo "ERROR: directory Data not found" ; ((FatalError=FatalError+1)) ; }
+#[[ -d Data_disk ]] || { echo "ERROR: directory Data_disk not found" ; exit 1 ; }
+#
+((FatalError>0)) && exit 1
 #
 [[ -f Data/Input/climato ]]        || { echo "INFO: copying climato" ; cp -f ${exper_climato:-DoesNotExist} Data/Input/climato ; }
 [[ -f Data/Input/climato ]]        || { echo "ERROR: climatology file not found" ; exit 1 ; }
