@@ -1,11 +1,20 @@
 exper='experiment_001'                                            # name of the experiment
 #
+# the following 4 lines should be left AS IS
+#
 UM_EXEC_climato=Data/Input/climato
 UM_EXEC_geophy=Data/Input/
 UM_EXEC_inrep=Data/Input/inrep
 UM_EXEC_anal=Data/Input/anal
-SPS_phy_intable=$(pwd -P)/physics_input_table
-SPS_dyn_intable=$(pwd -P)/dyn_input_table
+#
+# select source of needed tables
+#
+SPS_phy_intable=${sps_home}/config/physics_input_table            # defaults from sps package itself
+SPS_dyn_intable=${sps_home}/config/dyn_input_table                # defaults from sps package itself
+#SPS_phy_intable=$(pwd -P)/physics_input_table                    # uncomment line if using values from current directory
+#SPS_dyn_intable=$(pwd -P)/dyn_input_table                        # uncomment line if using values from current directory
+#
+exper_abs=$(pwd -P)/sps_Linux_x86-64.Abs                          # sps executable
 #
 exper_archive=$(pwd -P)/ARCHIVE                                   # where output is to be sent by post_sps.sh
 #
@@ -17,23 +26,26 @@ exper_geophy="/home/valin/project/SPS/Data/Input/Gem_geophy.fst"  # geophysical 
 exper_anal1=$(pwd -P)/Data_disk/Input/inrep/INI                   # where initial conditions can be found by pre_sps.sh
 exper_anal2=${exper_archive}/${exper}                             # where initial conditions can be found by pre_sps.sh
 #
+# *_YYYYMM  (monthly file)
+#
 exper_depot1=${MODEL_DATA}/Offline_driving/ERA-Interim_0.75/6h_Analysis   # where driving data can be found by pre_sps.sh
 exper_depot2=${MODEL_DATA}/SST_SeaIce/ERA-Interim_0.75deg                 # where driving data can be found by pre_sps.sh
 #
 exper_start_date=19790101                                         # initial date
-exper_end_date=19800101                                           # last date (unused if > exper_fold_date)
-exper_fold_date=19850201                                          # "back to the past" date (unused if > exper_end_date)
+exper_end_date=19800101                                           # last date (not used if > exper_fold_date)
+exper_fold_date=19850201                                          # "back to the past" date (not used if > exper_end_date)
 #
 #
 exper_delta='1month'                                              # MUST be 1month for now
 exper_deltat=21600                                                # model timesteps in seconds
-exper_cpu_config='--intopo=1x1 --btopo=1x1 --verbosity=warning --ptopo=4x4x1'                # configuration for call to sps.ksh
+exper_cpu_config='--intopo=1x1 --btopo=1x1 --verbosity=warning --ptopo=4x4x1'                # primary configuration for call to sps.ksh
 exper_cpu_config2='--intopo=1x1 --btopo=1x1 --verbosity=warning --ptopo=3x3x1'               # alternate configuration for sps.ksh
 #
 # the following variables get read and adjusted by pre_sps.sh, run_sps.sh, and post_sps.sh
 #   exper_current_date    is the starting date for the current monthly step
 #   exper_current_year    is the current year number in this multi year integration (should start at 1)
-#                         if exper_current_year == 0 , no extension is used for outputs or initial conditions
+#                         exper_current_year == 0 : no extension is used for outputs and initial conditions
+#                         exper_current_year != 0 : a 3 digit _yyy extension will be used for outputs and initial conditions
 #   exper_cycle_year      is the number of years to run
 #
 exper_current_date='19790101'

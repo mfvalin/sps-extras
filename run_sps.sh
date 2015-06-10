@@ -1,18 +1,26 @@
 #!/bin/bash
+if tty -s ; then    # interactive case, raise default memory limits
+  ulimit -s unlimited
+  ulimit -d unlimited
+  ulimit -d 8000000
+fi
 [[ "$1" == -v* ]] && set -x
 #
 [[ -r configexp.cfg ]] || { echo "ERROR: cannot find configexp.cfg" ; exit 1 ; }
 [[ -r sps.cfg ]]       || { echo "ERROR: cannot find sps.cfg" ; exit 1 ; }
 [[ -r sps.dict ]]      || { echo "ERROR: cannot find sps.dict" ; exit 1 ; }
-[[ -x sps_Linux_x86-64.Abs ]] || { echo "ERROR: cannot find executable sps_Linux_x86-64.Abs" ; exit 1 ; }
 [[ -r outcfg.out ]]    || { echo "ERROR: cannot find outcfg.out" ; exit 1 ; }
 source ./configexp.cfg
+[[ -d sps_Linux_x86-64.Abs ]] && echo "ERROR: expecting file for sps_Linux_x86-64.Abs" && exit 1
+[[ -x sps_Linux_x86-64.Abs ]] || ln -sf "${exper_abs:-/dev/null}" sps_Linux_x86-64.Abs
+[[ -x sps_Linux_x86-64.Abs ]] || { echo "ERROR: cannot find executable sps_Linux_x86-64.Abs" ; exit 1 ; }
 [[ -r ${SPS_phy_intable} ]] || { echo "ERROR: cannot find ${SPS_phy_intable}" ; exit 1 ; }
 [[ -r ${SPS_dyn_intable} ]] || { echo "ERROR: cannot find ${SPS_dyn_intable}" ; exit 1 ; }
 [[ -d ${exper_archive} ]]   || { echo "ERROR: archival directory not found" ; exit 1 ; }
-export sps=$(pwd -P)
 #
 [[ -L SHM && -d SHM ]]      || { echo "ERROR: SHM must be a soft link to an existing directory" ; exit 1 ;}
+#
+# create link to OUT
 #
 rm -f OUT
 [[ -d OUT ]] && { echo "ERROR: OUT is an existing directory and should not" ; exit 1 ;}
@@ -22,9 +30,13 @@ rm -f storage_model
 [[ -d storage_model ]] && { echo "ERROR: storage_model is an existing directory and should not" ; exit 1 ;}
 ln -s SHM/storage_model storage_model
 #
+# make sure include is linked to current directory
+#
 rm -f include
 [[ -d include ]] && { echo "ERROR: include is an existing directory and should not" ; exit 1 ;}
 ln -s . include
+#
+# make sure SPS_cfgs/cfg_0000 points to surrent directory
 #
 mkdir -p SPS_cfgs
 rm -f SPS_cfgs/cfg_0000
@@ -57,7 +69,8 @@ fi
 export storage_model
 #
 source functions_sps.dot
-if [[ -d ${exper_archive}/${exper}.snapshot ]] ; then
+#
+if [[ -d ${exper_archive}/${exper}.snapshot ]] ; then   # there is a snapshot, use it
   rsync -aruvxlH ${exper_archive}/${exper}.snapshot/. Data/.
   echo  "INFO: syncing run directory from ${exper_archive}/${exper}.snapshot"
 fi
@@ -68,11 +81,11 @@ fi
 #
 [[ -z ${exper_fold_date} ]] && exper_fold_date="$(date -d${exper_end_date}+1year  +%Y%m%d)" && echo "exper_fold_date=${exper_fold_date}" >>./configexp.cfg
 #
-[[ -d "${storage_model}" ]] || { echo "ERROR: ${storage_model} does not exist" ; exit 1 ; }
+[[ -d "${storage_model}" ]] || { echo "ERROR: directory ${storage_model} does not exist" ; exit 1 ; }
 #
 while true
 do
-  source ./configexp.cfg
+  source ./configexp.cfg    # get updated values
   #
   Extension=""
   ((exper_current_year>0)) && Extension="$(printf '_%3.3d' ${exper_current_year})"
@@ -99,7 +112,9 @@ do
   pre_sps.sh  || { echo "ERROR: pre_sps failed" ; exit 1 ; }
   #
   echo "INFO: sps.ksh ${exper_cpu_config}"
-  mkdir -p   ${exper_archive}/${exper}/Listings
+  mkdir -p   ${exper_archive}/${exper}/Listings   # for sps listings
+  [[ -d ${exper_archive}/${exper}/Listings ]] ||  { echo "ERROR: cannot create  ${exper_archive}/${exper}/Listings" ; exit 1 ; }
+  export sps=$(pwd -P)
   sps.ksh ${exper_cpu_config} >${exper_archive}/${exper}/Listings/sps_${exper_current_date:-${exper_start_date}}${Extension}.lst 2>&1 \
     || sps.ksh ${exper_cpu_config2} >${exper_archive}/${exper}/Listings/sps_${exper_current_date:-${exper_start_date}}${Extension}.lst.2 2>&1 \
     || { echo "ERROR: sps.ksh failed" ; exit 1 ; }
