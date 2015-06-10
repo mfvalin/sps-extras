@@ -16,8 +16,8 @@ source ./configexp.cfg
 [[ -d sps_Linux_x86-64.Abs ]] && echo "ERROR: expecting file for sps_Linux_x86-64.Abs" && ((FatalError=FatalError+1))
 [[ -x sps_Linux_x86-64.Abs ]] || ln -sf "${exper_abs:-/dev/null}" sps_Linux_x86-64.Abs
 [[ -x sps_Linux_x86-64.Abs ]] || { echo "ERROR: cannot find executable sps_Linux_x86-64.Abs" ; ((FatalError=FatalError+1)) ; }
-[[ -r ${SPS_phy_intable} ]] || { echo "ERROR: cannot find ${SPS_phy_intable}" ; ((FatalError=FatalError+1)) ; }
-[[ -r ${SPS_dyn_intable} ]] || { echo "ERROR: cannot find ${SPS_dyn_intable}" ; ((FatalError=FatalError+1)) ; }
+[[ -r ${SPS_phy_intable} ]] || { echo "ERROR: cannot find ${SPS_phy_intable:-physics_input_table}" ; ((FatalError=FatalError+1)) ; }
+[[ -r ${SPS_dyn_intable} ]] || { echo "ERROR: cannot find ${SPS_dyn_intable:-dyn_input_table}" ; ((FatalError=FatalError+1)) ; }
 [[ -d ${exper_archive} ]]   || { echo "ERROR: archival directory not found" ; ((FatalError=FatalError+1)) ; }
 #
 [[ -L SHM && -d SHM ]]      || { echo "ERROR: SHM must be a soft link to an existing directory" ; ((FatalError=FatalError+1)) ;}
