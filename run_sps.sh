@@ -1,9 +1,14 @@
 #!/bin/bash
+rm -f SHM
 if tty -s ; then    # interactive case, raise default memory limits
   ulimit -s unlimited
   ulimit -d unlimited
   ulimit -d 8000000
+  mkdir -p /dev/shm/${USER}
+  export RAMDISK=/dev/shm/${USER}   # defined in batch on guillimin
 fi
+[[ -d ${RAMDISK} ]] && ln -s ${RAMDISK} SHM
+#
 [[ "$1" == -v* ]] && set -x
 #
 unset FatalError
