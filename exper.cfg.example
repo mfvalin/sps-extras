@@ -34,6 +34,7 @@ exper_depot2=${MODEL_DATA}/SST_SeaIce/ERA-Interim_0.75deg                 # wher
 exper_start_date=19790101                                         # initial date
 exper_end_date=19800101                                           # last date (not used if > exper_fold_date)
 exper_fold_date=19850201                                          # "back to the past" date (not used if > exper_end_date)
+exper_steps=0                                                     # 0 : automatic mode, >0 : only run sps for exper_steps time steps
 #
 #
 exper_delta='1month'                                              # MUST be 1month for now

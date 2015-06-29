@@ -107,7 +107,10 @@ Date1=$(date -d${StepStartDate}GMT0 +%s)
 Date2=$(date -d${StepEndDate}GMT0 +%s)
 TimeStep=${exper_deltat:-10800}   # default 3 hour timestep
 Nsteps=$(((Date2-Date1)/TimeStep))
-Nhours=$(((Date2-Date1)/3600))
+exper_steps=${exper_steps:-0}
+((exper_steps>0)) && ((Nsteps=exper_steps))    # if exper_steps > 0, override computed Nsteps
+#Nhours=$(((Date2-Date1)/3600))
+((Nhours=Nsteps*TimeStep/3600))
 echo INFO: performing ${Nsteps} timesteps in ${Nhours} hours integration   file=pm${DaTe}000000-??-??_000000h
 #
 # fix Step_runstrt_S and Step_total in sps.cfg
