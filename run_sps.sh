@@ -106,7 +106,8 @@ do
     exit 0
   fi
   #
-  if [[ "${exper_current_date}" == "${exper_end_date}" ]] ; then
+#  if [[ "${exper_current_date}" == "${exper_end_date}" ]] ; then
+  if ((exper_current_date>=exper_end_date)) ; then
     echo "INFO: last date reached: ${exper_end_date}"
     cleanup_dirs
     exit 0

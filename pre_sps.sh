@@ -28,6 +28,12 @@ Delta=${exper_delta:-1month}
 #
 StepStartDate=${exper_current_date}
 StepEndDate="$(date -d${StepStartDate}+${Delta} +%Y%m%d)"
+if ((StepEndDate>exper_end_date)) ; then  # run for last month may be shorter
+  exper_steps=${exper_steps:-0}
+  StepEndDate=exper_end_date
+else
+  exper_steps=0
+fi
 echo "INFO: running from ${StepStartDate} to ${StepEndDate}, (${Delta})"
 #
 # get initial conditions files for this month (better be available or else !!)
@@ -107,16 +113,14 @@ Date1=$(date -d${StepStartDate}GMT0 +%s)
 Date2=$(date -d${StepEndDate}GMT0 +%s)
 TimeStep=${exper_deltat:-10800}   # default 3 hour timestep
 Nsteps=$(((Date2-Date1)/TimeStep))
-exper_steps=${exper_steps:-0}
-((exper_steps>0)) && ((Nsteps=exper_steps))    # if exper_steps > 0, override computed Nsteps
-#Nhours=$(((Date2-Date1)/3600))
-((Nhours=Nsteps*TimeStep/3600))
+((exper_steps>0)) && ((Nsteps=exper_steps))    # if exper_steps > 0, override Nsteps (always = 0  if not last month)
+((Nhours=Nsteps*TimeStep/3600))                # (used if run for last month is not an integral multiple of a day)
 echo INFO: performing ${Nsteps} timesteps in ${Nhours} hours integration   file=pm${DaTe}000000-??-??_000000h
 #
 # fix Step_runstrt_S and Step_total in sps.cfg
 #
 #find . -mindepth 3 -maxdepth 3 -name sps.cfg -exec cp {} sps.cfg_old \;
-#sed -e "s/Step_runstrt_S =[^.]*/Step_runstrt_S = '${StepStartDate}/" -e "s/Step_total.*/Step_total = ${Nsteps}/" <sps.cfg_old >sps.cfg_new 
+#sed -e "s/Step_runstrt_S =[^.]*/Step_runstrt_S = '${StepStartDate}/" -e "s/Step_total.*/Step_total = ${Nsteps}/" <sps.cfg_old >sps.cfg_new
 sed -e "s/Step_runstrt_S =[^.]*/Step_runstrt_S = '${StepStartDate}/" \
     -e "s/Step_dt.*/Step_dt = ${TimeStep}./"  \
     -e "s/Step_total.*/Step_total = ${Nsteps}/" <sps.cfg >sps.cfg_new  && \
