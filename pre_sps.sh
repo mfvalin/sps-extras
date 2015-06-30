@@ -30,7 +30,7 @@ StepStartDate=${exper_current_date}
 StepEndDate="$(date -d${StepStartDate}+${Delta} +%Y%m%d)"
 if ((StepEndDate>exper_end_date)) ; then  # run for last month may be shorter
   exper_steps=${exper_steps:-0}
-  StepEndDate=exper_end_date
+  StepEndDate=${exper_end_date}
 else
   exper_steps=0
 fi
