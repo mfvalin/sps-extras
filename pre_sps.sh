@@ -113,8 +113,8 @@ done
 # Date1  start of integration
 # Date2  end of integration  (usually 1 month later but might be less)
 #
-Date1=$(date -d${StepStartDate} 00:00:00 GMT +%s)
-Date2=$(date -d${StepEndDate} ${extra_time} GMT +%s)
+Date1=$(date -d"${StepStartDate} 00:00:00 GMT" +%s)
+Date2=$(date -d"${StepEndDate} ${extra_time} GMT" +%s)
 TimeStep=${exper_deltat:-10800}   # default 3 hour timestep
 Nsteps=$(((Date2-Date1)/TimeStep))
 ((extra_hours>0)) && ((extra_steps=extra_hours*3600/TimeStep))   # if extra_hours > 0, compute extra_steps to override Nsteps
