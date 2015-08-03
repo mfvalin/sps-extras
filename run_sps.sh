@@ -109,10 +109,18 @@ do
     exit 0
   fi
   #
-  if ((exper_current_date>=exper_end_date)) ; then         # end date reached
+  if ((exper_current_date>exper_end_date)) ; then          # end date reached
     echo "INFO: last date reached: ${exper_end_date}"      # exper_current_date is updated by post_sps.sh
     cleanup_dirs
     exit 0
+  fi
+  #
+  if ((exper_current_date==exper_end_date)) ; then         # end date really reached ?
+    if [[ -z ${extra_time} && -z ${extra_steps} && -z ${extra_hours} ]] ; then   # if extra_time is present, we are not done yet
+      echo "INFO: last date reached: ${exper_end_date}"
+      cleanup_dirs
+      exit 0
+    fi
   fi
   #
   set -x

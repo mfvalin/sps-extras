@@ -31,10 +31,12 @@ StepEndDate="$(date -d${StepStartDate}+${Delta} +%Y%m%d)"
 if ((StepEndDate>exper_end_date)) ; then  # run for last month may be shorter than a month
   extra_steps=${extra_steps:-0}           # extra steps for last day
   extra_hours=${extra_hours:-0}           # extra hours for last day  (will override extra_steps if specified)
+  extra_time=${extra_time:-00:00:00}
   StepEndDate=${exper_end_date}
 else
   extra_steps=0
   extra_hours=0
+  extra_time='00:00:00'
 fi
 echo "INFO: running from ${StepStartDate} to ${StepEndDate}, (${Delta})"
 #
@@ -111,13 +113,13 @@ done
 # Date1  start of integration
 # Date2  end of integration  (usually 1 month later but might be less)
 #
-Date1=$(date -d${StepStartDate}GMT0 +%s)
-Date2=$(date -d${StepEndDate}GMT0 +%s)
+Date1=$(date -d${StepStartDate} 00:00:00 GMT +%s)
+Date2=$(date -d${StepEndDate} ${extra_time} GMT +%s)
 TimeStep=${exper_deltat:-10800}   # default 3 hour timestep
 Nsteps=$(((Date2-Date1)/TimeStep))
 ((extra_hours>0)) && ((extra_steps=extra_hours*3600/TimeStep))   # if extra_hours > 0, compute extra_steps to override Nsteps
-((extra_steps>0)) && ((Nsteps=extra_steps))    # if extra_steps > 0, override Nsteps (always = 0  if not last month)
-((Nhours=Nsteps*TimeStep/3600))                # (used if run for last month is not a full month)
+((extra_steps>0)) && ((Nsteps=Nsteps+extra_steps))    # if extra_steps > 0, override Nsteps (always = 0  if not last month)
+((Nhours=Nsteps*TimeStep/3600))                       # extra_steps/extra_hours are used if run for last month is not a full month
 echo INFO: performing ${Nsteps} timesteps in ${Nhours} hours integration   file=pm${DaTe}000000-??-??_000000h
 #
 # fix Step_runstrt_S and Step_total in sps.cfg
