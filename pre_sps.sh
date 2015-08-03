@@ -28,11 +28,13 @@ Delta=${exper_delta:-1month}
 #
 StepStartDate=${exper_current_date}
 StepEndDate="$(date -d${StepStartDate}+${Delta} +%Y%m%d)"
-if ((StepEndDate>exper_end_date)) ; then  # run for last month may be shorter
-  exper_steps=${exper_steps:-0}
+if ((StepEndDate>exper_end_date)) ; then  # run for last month may be shorter than a month
+  extra_steps=${extra_steps:-0}           # extra steps for last day
+  extra_hours=${extra_hours:-0}           # extra hours for last day  (will override extra_steps if specified)
   StepEndDate=${exper_end_date}
 else
-  exper_steps=0
+  extra_steps=0
+  extra_hours=0
 fi
 echo "INFO: running from ${StepStartDate} to ${StepEndDate}, (${Delta})"
 #
@@ -52,7 +54,7 @@ if [[ -f Data/Input/anal_${StepStartDate} ]] ; then   # normally put there by po
   mv Data/Input/anal_${StepStartDate} Data/Input/anal
   echo "INFO: using Data/Input/anal_${StepStartDate} as initial conditions"
 else
-  for Target in ${exper_anal1} ${exper_anal2}
+  for Target in ${exper_anal1} ${exper_anal2}         # go fishing into directories containing initial conditions
   do
     echo "INFO: looking for ${Target}/anal_*_${StepStartDate}${Extension}"
     for Target2 in ${Target}/anal_*_${StepStartDate}${Extension}
@@ -68,7 +70,7 @@ fi
 [[ -f Data/Input/anal ]] || { echo "ERROR: cound not find initial conditions file for ${StepStartDate}" ; exit 1 ; }
 #
 # get driving data files for this month (better be available or else !!)
-#  files from ${exper_depot1} or ${exper_depot2}, names expected to end with _YYYYMM
+# files from directory ${exper_depot1} or ${exper_depot2}, names expected to end with _YYYYMM
 #
 #ls -l ${exper_depot1}/*_${StepStartDate%??} ${exper_depot2}/*_${StepStartDate%??}
 Nfiles=0
@@ -89,7 +91,7 @@ if ((Nfiles == 0));then
 fi
 #ls -l Data/Input/inrep/*_${StepStartDate%??}
 #
-# get driving data files for next month (if available and not there)
+# get driving data files for next month (if available and not already there)
 # (same rules as driving data for this month)
 #
 #ls -l ${exper_depot2}/*_${StepEndDate%??} ${exper_depot2}/*_${StepEndDate%??}
@@ -107,14 +109,15 @@ done
 #
 # calculate length of integration in hours and time steps (how many in this month)
 # Date1  start of integration
-# Date2  end of integration  (1month later)
+# Date2  end of integration  (usually 1 month later but might be less)
 #
 Date1=$(date -d${StepStartDate}GMT0 +%s)
 Date2=$(date -d${StepEndDate}GMT0 +%s)
 TimeStep=${exper_deltat:-10800}   # default 3 hour timestep
 Nsteps=$(((Date2-Date1)/TimeStep))
-((exper_steps>0)) && ((Nsteps=exper_steps))    # if exper_steps > 0, override Nsteps (always = 0  if not last month)
-((Nhours=Nsteps*TimeStep/3600))                # (used if run for last month is not an integral multiple of a day)
+((extra_hours>0)) && ((extra_steps=extra_hours*3600/TimeStep))   # if extra_hours > 0, compute extra_steps to override Nsteps
+((extra_steps>0)) && ((Nsteps=extra_steps))    # if extra_steps > 0, override Nsteps (always = 0  if not last month)
+((Nhours=Nsteps*TimeStep/3600))                # (used if run for last month is not a full month)
 echo INFO: performing ${Nsteps} timesteps in ${Nhours} hours integration   file=pm${DaTe}000000-??-??_000000h
 #
 # fix Step_runstrt_S and Step_total in sps.cfg
