@@ -1,7 +1,21 @@
 #!/bin/bash
 #
+usage()
+{
+cat <<EOT
+ USAGE: ${0##*/} [-h|--help] [-v|--verbose] [-d|--debug] [-gdb|--gdb] [-idb|--idb] [-preexec|--preexec ....]
+        -v|--verbose    echo commands in ${0##*/}
+        -d|--debug      send listing to screen rather than to file
+        -gdb|--gdb      start under gdb (GNU debugger) (1x1 configuration recommended)
+        -idb|--idb      start under idb (Intel debugger) (1x1 configuration recommended)
+        ---preexec arg  pass 'arg' to r.run_in parallel as '-preexec arg'
+EOT
+exit 0
+}
+#
 while [[ $# -gt 0 ]] ; do
    case $1 in
+      (-h|--help)           usage   ;;   
       (-v|--verbose)        VeRbOsE="-x"   ;;   
       (-d|--debug)          SPS_DEBUG="yes" ;;
       (-gdb|--gdb)          export RUN_IN_PARALLEL_EXTRAS="${RUN_IN_PARALLEL_EXTRAS} -preexec gdb"       ; SPS_DEBUG="yes" ;;
