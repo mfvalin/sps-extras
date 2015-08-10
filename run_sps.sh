@@ -1,4 +1,16 @@
 #!/bin/bash
+#
+while [[ $# -gt 0 ]] ; do
+   case $1 in
+      (-v|--verbose)     VeRbOsE="-x"   ;;
+      (-d|--debug)       SPS_DEBUG="yes" ;;
+      (-*) echo "Error: unknown option '$1'"; exit 1;;
+   esac
+   previous=$1
+   shift
+done
+set ${VeRbOsE:-+x}
+#
 rm -f SHM
 if tty -s ; then    # interactive case, raise default memory limits
   ulimit -s unlimited
@@ -8,8 +20,6 @@ if tty -s ; then    # interactive case, raise default memory limits
   export RAMDISK=/dev/shm/${USER}   # RAMDISK in defined for batch jobs on guillimin
 fi
 [[ -d ${RAMDISK} ]] && ln -s ${RAMDISK} SHM
-#
-[[ "$1" == -v* ]] && set -x
 #
 unset FatalError
 ((FatalError=0))
