@@ -136,10 +136,14 @@ do
   mkdir -p   ${exper_archive}/${exper}/Listings   # for sps listings
   [[ -d ${exper_archive}/${exper}/Listings ]] ||  { echo "ERROR: cannot create  ${exper_archive}/${exper}/Listings" ; exit 1 ; }
   export sps=$(pwd -P)
-  sps.ksh ${exper_cpu_config} >${exper_archive}/${exper}/Listings/sps_${exper_current_date:-${exper_start_date}}${Extension}.lst 2>&1 \
-    || sps.ksh ${exper_cpu_config2} >${exper_archive}/${exper}/Listings/sps_${exper_current_date:-${exper_start_date}}${Extension}.lst.2 2>&1 \
-    || { echo "ERROR: sps.ksh failed" ; exit 1 ; }
-  gzip -9 ${exper_archive}/${exper}/Listings/sps_${exper_current_date:-${exper_start_date}}${Extension}.lst*  &
+  if [[ -n ${SPS_DEBUG} ]] ; then
+    sps.ksh ${exper_cpu_config}  ||  { echo "ERROR: sps.ksh failed" ; exit 1 ; }
+  else
+    sps.ksh ${exper_cpu_config} >${exper_archive}/${exper}/Listings/sps_${exper_current_date:-${exper_start_date}}${Extension}.lst 2>&1 \
+      || sps.ksh ${exper_cpu_config2} >${exper_archive}/${exper}/Listings/sps_${exper_current_date:-${exper_start_date}}${Extension}.lst.2 2>&1 \
+      || { echo "ERROR: sps.ksh failed" ; exit 1 ; }
+    gzip -9 ${exper_archive}/${exper}/Listings/sps_${exper_current_date:-${exper_start_date}}${Extension}.lst*  &
+  fi
   #####################################################    POST   #############################################################
   post_sps.sh  || { echo "ERROR: post_sps failed" ; exit 1 ; }
   wait
