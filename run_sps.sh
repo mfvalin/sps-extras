@@ -8,7 +8,7 @@ cat <<EOT
         -d|--debug      send listing to screen rather than to file
         -gdb|--gdb      start under gdb (GNU debugger) (1x1 configuration recommended)
         -idb|--idb      start under idb (Intel debugger) (1x1 configuration recommended)
-        --preexec arg  pass 'arg' to r.run_in parallel as '-preexec arg'
+        --preexec arg   pass 'arg' to r.run_in parallel as '-preexec arg'
 EOT
 exit 0
 }
