@@ -5,6 +5,7 @@ while [[ $# -gt 0 ]] ; do
       (-v|--verbose)        VeRbOsE="-x"   ;;   
       (-d|--debug)          SPS_DEBUG="yes" ;;
       (-gdb|--gdb)          export RUN_IN_PARALLEL_EXTRAS="${RUN_IN_PARALLEL_EXTRAS} -preexec gdb"       ; SPS_DEBUG="yes" ;;
+      (-idb|--idb)          export RUN_IN_PARALLEL_EXTRAS="${RUN_IN_PARALLEL_EXTRAS} -preexec idb"       ; SPS_DEBUG="yes" ;;
       (-preexec|--preexec)  export RUN_IN_PARALLEL_EXTRAS="${RUN_IN_PARALLEL_EXTRAS} -preexec ${2:-gdb}" ; SPS_DEBUG="yes" ; shift ;;
       (-*) echo "Error: unknown option '$1'"; exit 1;;
    esac
