@@ -126,6 +126,7 @@ fi
 while true
 do
   source ./configexp.cfg    # get updated values from ./configexp.cfg
+  [[ -f outcfg.out.orig ]] && mv outcfg.out.orig outcfg.out
   #
   Extension=""   # Extension is used only when exper_current_year > 0
   ((exper_current_year>0)) && Extension="$(printf '_%3.3d' ${exper_current_year})"

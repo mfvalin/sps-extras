@@ -130,6 +130,10 @@ sed -e "s/Step_runstrt_S =[^.]*/Step_runstrt_S = '${StepStartDate}/" \
     -e "s/Step_dt.*/Step_dt = ${TimeStep}./"  \
     -e "s/Step_total.*/Step_total = ${Nsteps}/" <sps.cfg >sps.cfg_new  && \
   mv sps.cfg_new sps.cfg
+[[ -f outcfg.out.orig ]] && mv outcfg.out.orig outcfg.out
+grep -q USER_HOURS1 outcfg.out && \
+   cp outcfg.out outcfg.out.orig && \
+   sed -e "s/USER_HOURS1/${Nhours}/" <outcfg.out.orig >outcfg.out
 #find . -mindepth 3 -maxdepth 3 -name sps.cfg -exec mv sps.cfg_new {} \;
 #rm -f sps.cfg_old
 #exit 0
