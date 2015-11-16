@@ -92,16 +92,19 @@ program re_tag_scale
       ip1 = 59868832   ! arbitrary code 1
       print *,'INFO: I2 level changed from 0 mb to 1 arbitratry'
     endif
+    if (nomvar == 'LG  ' .and. fix_records) cycle
     if (nomvar == 'GL  ' .and. fix_records) then  ! rename GL to LG
       renamed = renamed + 1
       print *,'INFO: GL renamed LG'
       nomvar = 'LG  '
     endif
+    if (nomvar == 'AD  ' .and. fix_records) cycle
     if (nomvar == 'FI  ' .and. fix_records) then  ! rename GL to LG
       renamed = renamed + 1
       print *,'INFO: FI renamed AD'
       nomvar = 'AD  '
     endif
+    if (nomvar == 'N4  ' .and. fix_records) cycle
     if (nomvar == 'FB  ' .and. fix_records) then  ! rename GL to LG
       renamed = renamed + 1
       print *,'INFO: FB renamed N4'
