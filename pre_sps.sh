@@ -134,6 +134,7 @@ sed -e "s/Step_runstrt_S =[^.]*/Step_runstrt_S = '${StepStartDate}/" \
 grep -q MONTHLY outcfg.out && \
    cp outcfg.out outcfg.out.orig && \
    sed -e "s/MONTHLY/${Nhours}/" <outcfg.out.orig >outcfg.out
+true
 #find . -mindepth 3 -maxdepth 3 -name sps.cfg -exec mv sps.cfg_new {} \;
 #rm -f sps.cfg_old
 #exit 0
