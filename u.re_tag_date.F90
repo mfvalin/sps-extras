@@ -92,19 +92,19 @@ program re_tag_scale
       ip1 = 59868832   ! arbitrary code 1
       print *,'INFO: I2 level changed from 0 mb to 1 arbitratry'
     endif
-    if (nomvar == 'LG  ' .and. fix_records) cycle
+    if (nomvar == 'LG  ' .and. fix_records) goto 111
     if (nomvar == 'GL  ' .and. fix_records) then  ! rename GL to LG
       renamed = renamed + 1
       print *,'INFO: GL renamed LG'
       nomvar = 'LG  '
     endif
-    if (nomvar == 'AD  ' .and. fix_records) cycle
+    if (nomvar == 'AD  ' .and. fix_records) goto 111
     if (nomvar == 'FI  ' .and. fix_records) then  ! rename GL to LG
       renamed = renamed + 1
       print *,'INFO: FI renamed AD'
       nomvar = 'AD  '
     endif
-    if (nomvar == 'N4  ' .and. fix_records) cycle
+    if (nomvar == 'N4  ' .and. fix_records) goto 111
     if (nomvar == 'FB  ' .and. fix_records) then  ! rename GL to LG
       renamed = renamed + 1
       print *,'INFO: FB renamed N4'
@@ -116,7 +116,7 @@ program re_tag_scale
       call rescale(array,ni,nj,1.0,-273.16)
     endif
     call fstecr(array,array,-nbits,fstdout,datev,deet,npas,ni,nj,nk,ip1,ip2,ip3,typvar,nomvar,etiket,grtyp,ig1,ig2,ig3,ig4,datyp,.false.)
-    status = fstsui(fstdin,ni,nj,nk)
+111 status = fstsui(fstdin,ni,nj,nk)
   enddo
   print *,'INFO: number of records read and written =',nrec
   if(rescaled > 0) print *,'INFO: number of converted records:',rescaled
