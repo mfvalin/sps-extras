@@ -97,6 +97,16 @@ program re_tag_scale
       print *,'INFO: GL renamed LG'
       nomvar = 'LG  '
     endif
+    if (nomvar == 'FI  ' .and. fix_records) then  ! rename GL to LG
+      renamed = renamed + 1
+      print *,'INFO: FI renamed AD'
+      nomvar = 'AD  '
+    endif
+    if (nomvar == 'FB  ' .and. fix_records) then  ! rename GL to LG
+      renamed = renamed + 1
+      print *,'INFO: FB renamed N4'
+      nomvar = 'N4  '
+    endif
     if (nomvar == 'TM  ' .and. fix_records) then  ! TM converted to Celsius
       rescaled = rescaled + 1
       print *,'INFO: TM converted to Celsius '
