@@ -90,6 +90,7 @@ program fill_levels
   do i = 1, nvars
     nomvar = names(i)
     dateo = -1
+    datev = -1
     key = fstinf(iun,ni,nj,nk,datev,"",codes(1),-1,-1,"",nomvar)  ! first level
     if(key >= 0) then
       if(size(z) < ni*nj) then
