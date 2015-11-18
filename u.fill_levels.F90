@@ -85,24 +85,37 @@ program fill_levels
 
   do i = 1, nvars
     nomvar = names(i)
-    key = fstinf(iun,ni,nj,nk,-1,"",codes(1),-1,-1,"",nomvar)  ! first level
-    if(size(z) < ni*nj) then
-      deallocate(z)
-      allocate(z(ni*nj+10))
-    endif
-    if(.not. verify_only) then
-      status = fstluk(z,key,ni,nj,nk)
+    dateo = -1
+    key = fstinf(iun,ni,nj,nk,datev,"",codes(1),-1,-1,"",nomvar)  ! first level
+    if(key >= 0) then
+      if(size(z) < ni*nj) then
+        deallocate(z)
+        allocate(z(ni*nj+10))
+      endif
+      if(.not. verify_only) then
+        status = fstluk(z,key,ni,nj,nk)
+      else
+          print 100,'INFO: found level',1,' of variable "'//nomvar//'"'
+      endif
+      call fstprm(key,dateo,deet,npas,ni,nj,nk,nbits,datyp,ip1,ip2,ip3, &
+                  typvar,nomvar,etiket,grtyp,ig1,ig2,ig3,ig4, &
+                  swa,lng,dltf,ubc,extra1,extra2,extra3)
     else
-        print 100,'INFO: found level',1,' of variable "'//nomvar//'"'
+      print 100,'ERROR: level',1,' of variable "'//nomvar//'" is missing'
+      if(.not. verify_only) then
+        errors = errors + 1
+        goto 777
+      endif
     endif
-    call fstprm(key,dateo,deet,npas,ni,nj,nk,nbits,datyp,ip1,ip2,ip3, &
-                typvar,nomvar,etiket,grtyp,ig1,ig2,ig3,ig4, &
-                swa,lng,dltf,ubc,extra1,extra2,extra3)
     lastread = 1
     do j = 2, levels  ! try to read all levels, if a level is not found, write it
       hours = deet * npas
       hours = hours / 3600.0
-      call incdatr(datev,dateo,hours)
+      if(dateo .ne. -1) then
+        call incdatr(datev,dateo,hours)
+      else
+        datev = -1
+      endif
       key = fstinf(iun,ni0,nj0,nk0,datev,etiket,codes(j),ip2,ip3,typvar,nomvar)
       if(key <0) then
         if(verify_only) then
@@ -124,6 +137,7 @@ program fill_levels
     enddo
   enddo
 
+  777 continue
   call fstfrm(iun)
   if(errors > 0) then
     print 100,'===== ERRORS IN RUN ====='
