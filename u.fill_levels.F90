@@ -33,25 +33,25 @@ program fill_levels
   arg0 = 0
   CALL GET_COMMAND_ARGUMENT(arg0 + 1 , filename, length, status)
   if(status .ne. 0) goto 999
-  if(trim(filename) == '--help' .or. trim(filename) == '-h') then
+  if(trim(filename) == '--help' .or. trim(filename) == '-h') then   ! print usage requested
     call print_usage
     goto 888
   endif
-  if(trim(filename) == '--check') then
+  if(trim(filename) == '--check') then                              ! --check , bump argument base count
     verify_only = .true.
     print 100,"INFO: VERIFY ONLY"
     arg0 = arg0 + 1
   endif
 
-  CALL GET_COMMAND_ARGUMENT(arg0 + 1 , filename, length, status)
+  CALL GET_COMMAND_ARGUMENT(arg0 + 1 , filename, length, status)    ! get file name
   if(status .ne. 0) goto 999
   print 100,"INFO: processing '"//trim(filename)//"'"
 
-  CALL GET_COMMAND_ARGUMENT(arg0 + 2 , string, length, status)
+  CALL GET_COMMAND_ARGUMENT(arg0 + 2 , string, length, status)      ! get number of levels
   if(status .ne. 0) goto 999
 
-  read(string,*,iostat=status) levels
-  if(status .ne. 0) goto 999
+  read(string,*,iostat=status) levels                               ! decode integer
+  if(status .ne. 0) goto 999   ! ouch
   print 100,"INFO: number of levels =",levels
 
   allocate(codes(levels))
@@ -93,25 +93,27 @@ program fill_levels
     datev = -1
 !    key = fstinf(iun,ni,nj,nk,datev,"",codes(1),-1,-1,"",nomvar)  ! first level
     key = fstinf(iun,ni,nj,nk,datev,"",-1,-1,-1,"",nomvar)  ! first level
-    if(key >= 0) then
-      if(size(z) < ni*nj) then
+    if(key >= 0) then             ! record found (ip1 == -1)
+      if(size(z) < ni*nj) then    ! z is not big enough
         deallocate(z)
         allocate(z(ni*nj+10))
       endif
       call fstprm(key,dateo,deet,npas,ni,nj,nk,nbits,datyp,ip1,ip2,ip3, &
                   typvar,nomvar,etiket,grtyp,ig1,ig2,ig3,ig4, &
-                  swa,lng,dltf,ubc,extra1,extra2,extra3)
-      if(ip1 == 0 .and. (.not. verify_only)) then   ! plug 0 mb as codes(1)
+                  swa,lng,dltf,ubc,extra1,extra2,extra3)     ! get metadata
+      if(ip1 == 0 .and. (.not. verify_only)) then            ! plug 0 mb as codes(1)
         ip1 = codes(1)
         status = fst_edit_dir(key,dateo,deet,npas,ni,nj,nk,ip1,ip2,ip3,typvar,nomvar,etiket,grtyp,ig1,ig2,ig3,ig4,datyp)
-        print 100,'INFO: forcing variable '//trim(nomvar)//' level to value #1'
-        if(status .ne. 0) then
+        if(status == 0) then
+          print 100,'INFO: forced variable '//trim(nomvar)//' level to value #1'
+        else
           errors = errors + 1
+          print 100,'INFO: failed to force variable '//trim(nomvar)//' level to value #1'
           goto 777
         endif
       endif
       if(.not. verify_only) then
-        status = fstluk(z,key,ni,nj,nk)
+        status = fstluk(z,key,ni,nj,nk)   ! read record
       else
         if(ip1 == codes(1)) then
           print 100,'INFO: found level #',1,' of variable "'//nomvar//'"'
@@ -127,31 +129,31 @@ program fill_levels
       endif
     endif
     lastread = 1
-    do j = 2, levels  ! try to read all levels, if a level is not found, write it
+    do j = 2, levels  ! try to read all levels, if a level is not found, write it (using last valid level read)
       hours = deet * npas
       hours = hours / 3600.0
-      if(dateo .ne. -1) then
-        call incdatr(datev,dateo,hours)
+      if(dateo .ne. -1) then   ! no dateo from previous record is available
+        call incdatr(datev,dateo,hours)  ! compute date of validity from date of origin for eventual fstecr
       else
         datev = -1
       endif
-      key = fstinf(iun,ni0,nj0,nk0,datev,etiket,codes(j),ip2,ip3,typvar,nomvar)
-      if(key <0) then
+      key = fstinf(iun,ni0,nj0,nk0,datev,etiket,codes(j),ip2,ip3,typvar,nomvar)   ! look for next
+      if(key <0) then   ! arbitrary level not found
         if(verify_only) then
           print 100,'ERROR: level #',j,' of variable "'//nomvar//'" is missing'
           errors = errors + 1
-        else
+        else   ! write last arbitrary level that was read
           print 100,'INFO: adding level #',lastread,' of variable "'//nomvar//'" as level #',j
           call fstecr(z,z,-nbits,iun,dateo,deet,npas,ni,nj,nk,codes(j),ip2,ip3,typvar,nomvar,etiket,grtyp,ig1,ig2,ig3,ig4,datyp,.false.)
         endif
       else
         if(.not. verify_only) then
-          status = fstluk(z,key,ni,nj,nk)
+          status = fstluk(z,key,ni,nj,nk)  ! read in case next one is missing
           print 100,'INFO: keeping level #',j,' of variable "'//nomvar//'"'
         else
           print 100,'INFO: found level #',j,' of variable "'//nomvar//'"'
         endif
-        lastread = j
+        lastread = j   ! number of last level successfully read
       endif
     enddo
   enddo
