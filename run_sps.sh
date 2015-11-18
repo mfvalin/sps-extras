@@ -15,8 +15,8 @@ exit 0
 #
 while [[ $# -gt 0 ]] ; do
    case $1 in
-      (-h|--help)           usage   ;;   
-      (-v|--verbose)        VeRbOsE="-x"   ;;   
+      (-h|--help)           usage   ;;
+      (-v|--verbose)        VeRbOsE="-x"   ;;
       (-d|--debug)          SPS_DEBUG="yes" ;;
       (-gdb|--gdb)          export RUN_IN_PARALLEL_EXTRAS="${RUN_IN_PARALLEL_EXTRAS} -preexec gdb"       ; SPS_DEBUG="yes" ;;
       (-idb|--idb)          export RUN_IN_PARALLEL_EXTRAS="${RUN_IN_PARALLEL_EXTRAS} -preexec idb"       ; SPS_DEBUG="yes" ;;
@@ -126,6 +126,10 @@ fi
 while true
 do
   source ./configexp.cfg    # get updated values from ./configexp.cfg
+  if ((exper_current_date==exper_start_date)) then  # conditionally set restart = .false.
+    fix_sps_cfg_restart true
+  fi
+#
   [[ -f outcfg.out.orig ]] && mv outcfg.out.orig outcfg.out
   #
   Extension=""   # Extension is used only when exper_current_year > 0
@@ -172,6 +176,7 @@ do
       || { echo "ERROR: sps.ksh failed" ; exit 1 ; }
     gzip -9 ${exper_archive}/${exper}/Listings/sps_${exper_current_date:-${exper_start_date}}${Extension}.lst*  &
   fi
+  fix_sps_cfg_restart false    # always false after first slice
   #####################################################    POST   #############################################################
   post_sps.sh  || { echo "ERROR: post_sps failed" ; exit 1 ; }
   wait
