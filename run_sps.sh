@@ -126,7 +126,7 @@ fi
 while true
 do
   source ./configexp.cfg    # get updated values from ./configexp.cfg
-  if ((exper_current_date==exper_start_date)) then  # conditionally set restart = .false.
+  if ((exper_current_date==exper_start_date)) ; then  # conditionally set restart = .false.
     fix_sps_cfg_restart true
   fi
 #
