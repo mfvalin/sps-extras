@@ -33,6 +33,10 @@ program fill_levels
   arg0 = 0
   CALL GET_COMMAND_ARGUMENT(arg0 + 1 , filename, length, status)
   if(status .ne. 0) goto 999
+  if(trim(filename) == '--help' .or. trim(filename) == '-h') then
+    call print_usage
+    goto 888
+  endif
   if(trim(filename) == '--check') then
     verify_only = .true.
     print 100,"INFO: VERIFY ONLY"
@@ -148,7 +152,12 @@ program fill_levels
   stop
   100 format(A,I4,1X,A,I4)
 999 continue
-  print *,"ERROR in arguments, aborting run"
+  print *,"ERROR in arguments, aborting"
+  call print_usage
   call qqexit(1)
   stop
 end
+subroutine print_usage
+  print *,"Usage: u.fill_levels [--check] filename nb_levels nvars Var_1 Var_2 ... Var_nvars"
+  return
+end subroutine print_usage
