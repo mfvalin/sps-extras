@@ -127,7 +127,7 @@ while true
 do
   source ./configexp.cfg    # get updated values from ./configexp.cfg
   if ((exper_current_date==exper_start_date)) ; then  # conditionally set restart = .false.
-    fix_sps_cfg_restart true
+    fix_sps_cfg_restart false
   fi
 #
   [[ -f outcfg.out.orig ]] && mv outcfg.out.orig outcfg.out
@@ -176,7 +176,7 @@ do
       || { echo "ERROR: sps.ksh failed" ; exit 1 ; }
     gzip -9 ${exper_archive}/${exper}/Listings/sps_${exper_current_date:-${exper_start_date}}${Extension}.lst*  &
   fi
-  fix_sps_cfg_restart false    # always false after first slice
+  fix_sps_cfg_restart true    # always .true. after first slice
   #####################################################    POST   #############################################################
   post_sps.sh  || { echo "ERROR: post_sps failed" ; exit 1 ; }
   wait
