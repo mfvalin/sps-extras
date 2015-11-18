@@ -105,10 +105,10 @@ program fill_levels
         ip1 = codes(1)
         status = fst_edit_dir(key,dateo,deet,npas,ni,nj,nk,ip1,ip2,ip3,typvar,nomvar,etiket,grtyp,ig1,ig2,ig3,ig4,datyp)
         if(status == 0) then
-          print 100,'INFO: forced variable '//trim(nomvar)//' level to value #1'
+          print 100,'INFO: forced variable '//trim(nomvar)//' level 0mb to value #1'
         else
           errors = errors + 1
-          print 100,'INFO: failed to force variable '//trim(nomvar)//' level to value #1'
+          print 100,'INFO: failed to force variable '//trim(nomvar)//' level 0mb to value #1'
           goto 777
         endif
       endif
