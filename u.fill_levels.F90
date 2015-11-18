@@ -20,7 +20,7 @@ program fill_levels
   character(len=4) :: nomvar
   character(len=2) :: typvar
   character(len=12) :: etiket
-  integer, external :: fstouv, fnom, fstinf, fstluk, fstlir
+  integer, external :: fstouv, fnom, fstinf, fstluk, fstlir, fst_edit_dir
   logical :: verify_only
 
   filename = 'DoesNotExistYet'
@@ -91,22 +91,36 @@ program fill_levels
     nomvar = names(i)
     dateo = -1
     datev = -1
-    key = fstinf(iun,ni,nj,nk,datev,"",codes(1),-1,-1,"",nomvar)  ! first level
+!    key = fstinf(iun,ni,nj,nk,datev,"",codes(1),-1,-1,"",nomvar)  ! first level
+    key = fstinf(iun,ni,nj,nk,datev,"",-1,-1,-1,"",nomvar)  ! first level
     if(key >= 0) then
       if(size(z) < ni*nj) then
         deallocate(z)
         allocate(z(ni*nj+10))
       endif
-      if(.not. verify_only) then
-        status = fstluk(z,key,ni,nj,nk)
-      else
-          print 100,'INFO: found level',1,' of variable "'//nomvar//'"'
-      endif
       call fstprm(key,dateo,deet,npas,ni,nj,nk,nbits,datyp,ip1,ip2,ip3, &
                   typvar,nomvar,etiket,grtyp,ig1,ig2,ig3,ig4, &
                   swa,lng,dltf,ubc,extra1,extra2,extra3)
+      if(ip1 == 0 .and. (.not. verify_only)) then   ! plug 0 mb as codes(1)
+        ip1 = codes(1)
+        status = fst_edit_dir(key,dateo,deet,npas,ni,nj,nk,ip1,ip2,ip3,typvar,nomvar,etiket,grtyp,ig1,ig2,ig3,ig4,datyp)
+        print 100,'INFO: forcing variable '//trim(nomvar)//' level to value #1'
+        if(status .ne. 0) then
+          errors = errors + 1
+          goto 777
+        endif
+      endif
+      if(.not. verify_only) then
+        status = fstluk(z,key,ni,nj,nk)
+      else
+        if(ip1 == codes(1)) then
+          print 100,'INFO: found level #',1,' of variable "'//nomvar//'"'
+        else
+          print 100,'ERROR: level #',1,' of variable "'//nomvar//'" is missing'
+        endif
+      endif
     else
-      print 100,'ERROR: level',1,' of variable "'//nomvar//'" is missing'
+      print 100,'ERROR: level #',1,' of variable "'//nomvar//'" is missing'
       if(.not. verify_only) then
         errors = errors + 1
         goto 777
@@ -124,18 +138,18 @@ program fill_levels
       key = fstinf(iun,ni0,nj0,nk0,datev,etiket,codes(j),ip2,ip3,typvar,nomvar)
       if(key <0) then
         if(verify_only) then
-          print 100,'ERROR: level',j,' of variable "'//nomvar//'" is missing'
+          print 100,'ERROR: level #',j,' of variable "'//nomvar//'" is missing'
           errors = errors + 1
         else
-          print 100,'INFO: adding level',lastread,' of variable "'//nomvar//'" as level',j
+          print 100,'INFO: adding level #',lastread,' of variable "'//nomvar//'" as level #',j
           call fstecr(z,z,-nbits,iun,dateo,deet,npas,ni,nj,nk,codes(j),ip2,ip3,typvar,nomvar,etiket,grtyp,ig1,ig2,ig3,ig4,datyp,.false.)
         endif
       else
         if(.not. verify_only) then
           status = fstluk(z,key,ni,nj,nk)
-          print 100,'INFO: keeping level',j,' of variable "'//nomvar//'"'
+          print 100,'INFO: keeping level #',j,' of variable "'//nomvar//'"'
         else
-          print 100,'INFO: found level',j,' of variable "'//nomvar//'"'
+          print 100,'INFO: found level #',j,' of variable "'//nomvar//'"'
         endif
         lastread = j
       endif
