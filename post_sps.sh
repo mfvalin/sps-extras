@@ -48,7 +48,9 @@ EOT
 echo editfst -s OUT/${exper}_${FileDate} -d OUT/${exper}_anal -i editfst1.dir
 ls -l OUT/${exper}_${FileDate}
 editfst -s OUT/${exper}_${FileDate} -d OUT/${exper}_anal -i editfst1.dir
-u.re_tag_date OUT/${exper}_anal OUT/${exper}_anal_fixed -1 --FIX
+ResetIp1=$(grep -iw     Lvl_list  sps.cfg 2>/dev/null | sed -e 's/ //g' -e 's/.*=//')
+ResetIp1=$(r.ip1 ${ResetIp1:-0.999} 5 2>/dev/null)
+u.re_tag_date OUT/${exper}_anal OUT/${exper}_anal_fixed -1 --FIX --IP1 ${ResetIp1:-95370840}
 mv OUT/${exper}_anal_fixed OUT/${exper}_anal
 rm -f editfst1.dir
 #

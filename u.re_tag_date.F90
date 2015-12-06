@@ -15,12 +15,16 @@ program re_tag_scale
   character(len=4) :: nomvar
   character(len=2) :: typvar
   character(len=12) :: etiket
-  character(len=64) :: force_z
+  character(len=64) :: force_z, command
   integer :: newig1, newig2
-  integer :: renamed, rescaled
+  integer :: renamed, rescaled, suppressed, zeroed
   logical :: fix_records
+  character(len=4), dimension(8) :: fix_lvl_vars
+  integer :: fix_lvl_ip1 = -1
+  integer :: current_arg
 
   fix_records = .false.
+  fix_lvl_vars = ['T5  ','T9  ','TAMN','TAMX','TADM','QADM','UADM','VADM']
   nargs = command_argument_count()
   if(nargs < 3) call print_usage
   call GET_COMMAND_ARGUMENT(1,old_file)
@@ -30,15 +34,30 @@ program re_tag_scale
   newig2 = -1
   renamed = 0
   rescaled = 0
-  if(nargs >= 4) then
-    call GET_COMMAND_ARGUMENT(4,force_z)
-    if(trim(force_z) == '--FIX') then
+  suppressed = 0
+  zeroed = 0
+  current_arg = 4
+  do while(nargs >=current_arg)
+    call GET_COMMAND_ARGUMENT(current_arg,command)
+    current_arg = current_arg + 1
+    if(trim(command) == '--FIX' .or. trim(command) == '--fix') then
       fix_records = .true.
-    else
-      read(force_z,*,err=777)newig1,newig2
-      print *,'forcing Z descriptors to',newig1,newig2
+      print *,'INFO: fix_records mode active'
+      cycle
     endif
-  endif
+    if(trim(command) == '--IP1' .or. trim(command) == '--ip1') then
+      if(nargs < current_arg) goto 777
+      call GET_COMMAND_ARGUMENT(current_arg,command)
+      current_arg = current_arg + 1
+      read(command,*,err=777)fix_lvl_ip1
+      print 100,'INFO: setting ip1 to 0 if ip1 == ',trim(command)
+      print 100,'      for variables :',fix_lvl_vars
+100 format(A,20A5)
+      cycle
+    endif
+    read(command,*,err=777)newig1,newig2
+    print *,'forcing Z descriptors to',newig1,newig2
+  enddo
 
   print *,'u.re_tag_scale '//trim(old_file)//' '//trim(new_file)//' '//trim(the_new_date)
   read(the_new_date,*)new_datev
@@ -48,15 +67,19 @@ program re_tag_scale
   print *,'INFO: opening input file '//trim(old_file)
   fstdin = 0
   i = fnom(fstdin,trim(old_file),'STD+RND+OLD+R/O',0)
+  if(i < 0) goto 777
 !  print *,'DEBUG: fstdin=',fstdin
   i = fstouv(fstdin,'RND')
+  if(i < 0) goto 777
 !  print *,'DEBUG: status of fstouv fstdin =',i
 
   print *,'INFO: opening output file '//trim(new_file)
   fstdout = 0
   i = fnom(fstdout,trim(new_file),'STD+RND',0)
+  if(i < 0) goto 777
 !  print *,'DEBUG: fstdout=',fstdout
   i = fstouv(fstdout,'RND')
+  if(i < 0) goto 777
 !  print *,'DEBUG: status of fstouv fstdout =',i
 
   call fstopc('MSGLVL','ERRORS',0)
@@ -87,6 +110,19 @@ program re_tag_scale
       call copy84(array,ni,nj,array)
       call printstats(array,ni,nj)
       nbits = 32
+    endif
+    if(fix_lvl_ip1 >= 1) then  ! set ip1 to zero for some variables
+      if(any(nomvar==fix_lvl_vars)) then
+        if(ip1 == fix_lvl_ip1) then
+          print *,'INFO: ip1 set to zero for ',nomvar
+          ip1 = 0
+          zeroed = zeroed + 1
+        else
+          print *,'INFO: record suppressed, nomvar , ip1 :',nomvar,ip1
+          suppressed = suppressed + 1
+          goto 111
+        endif
+      endif
     endif
     if (nomvar == 'I2  ' .and. fix_records .and. ip1 == 0) then
       ip1 = 59868832   ! arbitrary code 1
@@ -121,6 +157,8 @@ program re_tag_scale
   print *,'INFO: number of records read and written =',nrec
   if(rescaled > 0) print *,'INFO: number of converted records:',rescaled
   if(renamed > 0)  print *,'INFO: number of renamed records:',renamed
+  if(suppressed > 0)  print *,'INFO: number of suppressed records:',suppressed
+  if(zeroed > 0)  print *,'INFO: number of records with ip1 set to zero:',zeroed
 
   call fstfrm(fstdin)
   call fstfrm(fstdout)
