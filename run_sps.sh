@@ -13,9 +13,11 @@ EOT
 exit 0
 }
 #
+ForceStart=""
 while [[ $# -gt 0 ]] ; do
    case $1 in
       (-h|--help)           usage   ;;
+      (-s|--start)          ForceStart="yes"   ;;
       (-v|--verbose)        VeRbOsE="-x"   ;;
       (-d|--debug)          SPS_DEBUG="yes" ;;
       (-gdb|--gdb)          export RUN_IN_PARALLEL_EXTRAS="${RUN_IN_PARALLEL_EXTRAS} -preexec gdb"       ; SPS_DEBUG="yes" ;;
@@ -46,6 +48,7 @@ unset FatalError
 [[ -r outcfg.out ]]    || { echo "ERROR: cannot find outcfg.out"    ; ((FatalError=FatalError+1)) ; }
 #
 source ./configexp.cfg
+#
 [[ -d sps_Linux_x86-64.Abs ]] && echo "ERROR: expecting file for sps_Linux_x86-64.Abs"              && ((FatalError=FatalError+1))
 [[ -x sps_Linux_x86-64.Abs ]] || ln -sf "${exper_abs:-/dev/null}" sps_Linux_x86-64.Abs
 [[ -x sps_Linux_x86-64.Abs ]] || { echo "ERROR: cannot find executable sps_Linux_x86-64.Abs"         ; ((FatalError=FatalError+1)) ; }
@@ -117,6 +120,8 @@ fi
 # make sure that there is a value for exper_current_date, and exper_fold_date in configuration file
 #
 [[ -z ${exper_current_date} ]] && exper_current_date=${exper_start_date} && echo "exper_current_date=${exper_current_date}" >>configexp.cfg
+#
+[[ -n $ForceStart ]]  && exper_current_date=${exper_start_date}  && update_cfg configexp.cfg exper_current_date ${exper_start_date}
 #
 [[ -z ${exper_fold_date} ]] && exper_fold_date="$(date -d${exper_end_date}+1year  +%Y%m%d)" && echo "exper_fold_date=${exper_fold_date}" >>./configexp.cfg
 #
