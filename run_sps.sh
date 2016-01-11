@@ -5,6 +5,9 @@ usage()
 cat <<EOT
  USAGE: ${0##*/} [-h|--help] [-v|--verbose] [-d|--debug] [-gdb|--gdb] [-idb|--idb] [-preexec|--preexec ....]
         -v|--verbose    echo commands in ${0##*/}
+        -s|--start      force currrent date = start date
+        -n|--noretry    no retry in case of sps error
+        -r|--retry      retry once in case of sps error [default]
         -d|--debug      send listing to screen rather than to file
         -gdb|--gdb      start under gdb (GNU debugger) (1x1 configuration recommended)
         -idb|--idb      start under idb (Intel debugger) (1x1 configuration recommended)
@@ -14,10 +17,13 @@ exit 0
 }
 #
 ForceStart=""
+ErrorRetry="yes"
 while [[ $# -gt 0 ]] ; do
    case $1 in
       (-h|--help)           usage   ;;
       (-s|--start)          ForceStart="yes"   ;;
+      (-n|--noretry)        ErrorRetry=""   ;;
+      (-r|--retry)          ErrorRetry="yes"   ;;
       (-v|--verbose)        VeRbOsE="-x"   ;;
       (-d|--debug)          SPS_DEBUG="yes" ;;
       (-gdb|--gdb)          export RUN_IN_PARALLEL_EXTRAS="${RUN_IN_PARALLEL_EXTRAS} -preexec gdb"       ; SPS_DEBUG="yes" ;;
@@ -168,7 +174,7 @@ do
   fi
   set +x
   #####################################################    PRE    #############################################################
-  pre_sps.sh  || { echo "ERROR: pre_sps failed" ; exit 1 ; }
+  pre_sps.sh  || { echo "ERROR: pre_sps failed" ; cleanup_dirs ; exit 1 ; }
   #####################################################    SPS    #############################################################
   echo "INFO: sps.ksh ${exper_cpu_config}"
   mkdir -p   ${exper_archive}/${exper}/Listings   # for sps listings
@@ -177,14 +183,21 @@ do
   if [[ -n ${SPS_DEBUG} ]] ; then
     sps.ksh ${exper_cpu_config}  ||  { echo "ERROR: sps.ksh failed" ; exit 1 ; }
   else
+    Retry=""
+    Failed=""
     sps.ksh ${exper_cpu_config} >${exper_archive}/${exper}/Listings/sps_${exper_current_date:-${exper_start_date}}${Extension}.lst 2>&1 \
-      || sps.ksh ${exper_cpu_config2} >${exper_archive}/${exper}/Listings/sps_${exper_current_date:-${exper_start_date}}${Extension}.lst.2 2>&1 \
-      || { echo "ERROR: sps.ksh failed" ; exit 1 ; }
+      || { Retry="$ErrorRetry" ; Failed="yes" ; }
+    if [[ -n ${Retry} ]] ; then  # attempt no 1 failed and ErrorRetry is yes
+      Failed=""
+      sps.ksh ${exper_cpu_config2} >${exper_archive}/${exper}/Listings/sps_${exper_current_date:-${exper_start_date}}${Extension}.lst.2 2>&1 \
+      || Failed="yes"
+    fi
+    [[ -n ${Failed} ]] && { echo "ERROR: sps.ksh failed" ; cleanup_dirs ; exit 1 ; }
     gzip -9 ${exper_archive}/${exper}/Listings/sps_${exper_current_date:-${exper_start_date}}${Extension}.lst*  &
   fi
   fix_sps_cfg_restart true    # always .true. after first slice
   #####################################################    POST   #############################################################
-  post_sps.sh  || { echo "ERROR: post_sps failed" ; exit 1 ; }
+  post_sps.sh  || { echo "ERROR: post_sps failed" ; cleanup_dirs ; exit 1 ; }
   wait
   #####################################################    DONE   #############################################################
   source ./configexp.cfg
