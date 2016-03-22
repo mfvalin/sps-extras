@@ -19,7 +19,7 @@ cleanup_dirs() {
 # save runtime directories upon crash, no arguments
 save_crash() {
   [[ ${SaVeCrAsH} == false ]] && return
-  Snapshot=${exper_archive}/${exper}.crash.$(date +%F-%T)
+  Snapshot=${exper_archive}/${exper}.crash.$(date +%F-%k_%M_%S)
   mkdir -p ${Snapshot}
   rsync -aruvxlH --delete SHM/storage_model ${Snapshot}/.
   unset Snapshot

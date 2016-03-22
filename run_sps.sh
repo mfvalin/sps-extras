@@ -48,7 +48,7 @@ if tty -s ; then    # interactive case, raise default memory limits
   mkdir -p /dev/shm/${USER}
   export RAMDISK=/dev/shm/${USER}   # RAMDISK in defined for batch jobs on guillimin
 fi
-[[ -d ${RAMDISK} ]] && ln -s ${RAMDISK} SHM
+[[ -d ${RAMDISK} ]] && mkdir -p ${RAMDISK}/$$ && ln -s ${RAMDISK}/$$ SHM
 #
 unset FatalError
 ((FatalError=0))
@@ -190,7 +190,7 @@ do
     Retry=""
     Failed=""
     sps.ksh ${exper_cpu_config} >${exper_archive}/${exper}/Listings/sps_${exper_current_date:-${exper_start_date}}${Extension}.lst 2>&1 \
-      || { Retry="$ErrorRetry" ; Failed="yes" ; save_crash }
+      || { Retry="$ErrorRetry" ; Failed="yes" ; save_crash ; }
     if [[ -n ${Retry} ]] ; then  # attempt no 1 failed and ErrorRetry is yes
       Failed=""
       sps.ksh ${exper_cpu_config2} >${exper_archive}/${exper}/Listings/sps_${exper_current_date:-${exper_start_date}}${Extension}.lst.2 2>&1 \
