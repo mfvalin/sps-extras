@@ -48,7 +48,7 @@ if tty -s ; then    # interactive case, raise default memory limits
   mkdir -p /dev/shm/${USER}
   export RAMDISK=/dev/shm/${USER}   # RAMDISK in defined for batch jobs on guillimin
 fi
-[[ -d ${RAMDISK} ]] && mkdir -p ${RAMDISK}/$$ && ln -s ${RAMDISK}/$$ SHM
+[[ -d ${RAMDISK} ]] && mkdir -p ${RAMDISK}/sps_$$ && ln -s ${RAMDISK}/sps_$$ SHM
 #
 unset FatalError
 ((FatalError=0))
