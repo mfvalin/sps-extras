@@ -5,11 +5,11 @@ program re_tag_scale
   character(len=1024) :: old_file, new_file, the_new_date
   integer :: i, status
   integer :: fstdin, fstdout
-  integer, external :: fnom, fstouv, fstinf, fstsui, fstluk
+  integer, external :: fnom, fstouv, fstinf, fstsui, fstluk, fstopl, fstopi
   real,    dimension(:,:), allocatable :: array
   integer :: ni, nj, nk, nrec
   integer :: nbits,datyp,ip1,ip2,ip3,dateo,deet,npas
-  integer :: datev, new_datev
+  integer :: new_dateo
   integer :: ig1,ig2,ig3,ig4,swa,lng,dltf,ubc,extra1,extra2,extra3
   character(len=1) :: grtyp
   character(len=4) :: nomvar
@@ -18,7 +18,7 @@ program re_tag_scale
   character(len=64) :: force_z, command
   integer :: newig1, newig2
   integer :: renamed, rescaled, suppressed, zeroed
-  logical :: fix_records
+  logical :: fix_records, z_ify
   character(len=4), dimension(8) :: fix_lvl_vars
   integer :: fix_lvl_ip1 = -1
   integer :: current_arg
@@ -60,9 +60,17 @@ program re_tag_scale
   enddo
 
   print *,'u.re_tag_scale '//trim(old_file)//' '//trim(new_file)//' '//trim(the_new_date)
-  read(the_new_date,*)new_datev
-
-  print *,'INFO: new date of validity: '//trim(the_new_date),new_datev
+  if(trim(the_new_date) == '-z') then
+    new_dateo = -1
+    z_ify = .true.
+    i = fstopl('FASTIO', .true., .false.)
+    i = fstopl('IMAGE', .true., .false.)
+    i = fstopi("MSGLVL",4,.false.)
+  else
+    read(the_new_date,*)new_dateo
+    print *,'INFO: new date of validity: '//trim(the_new_date),new_dateo
+    z_ify = .false.
+  endif
 
   print *,'INFO: opening input file '//trim(old_file)
   fstdin = 0
@@ -95,12 +103,12 @@ program re_tag_scale
     call fstprm(status,dateo,deet,npas,ni,nj,nk,nbits,datyp,ip1,ip2,ip3, &
                 typvar,nomvar,etiket,grtyp,ig1,ig2,ig3,ig4, &
                 swa,lng,dltf,ubc,extra1,extra2,extra3)
-    if(new_datev > 0) then
+    if(new_dateo > 0) then
       deet = 0
       npas = 0
-      datev = new_datev
+      dateo = new_dateo
     else
-      datev = dateo
+      dateo = dateo
     endif
     if(newig1 > 0 .and. newig2 > 0 .and. grtyp == 'Z') then
       ig1 = newig1
@@ -151,7 +159,12 @@ program re_tag_scale
       print *,'INFO: TM converted to Celsius '
       call rescale(array,ni,nj,1.0,-273.16)
     endif
-    call fstecr(array,array,-nbits,fstdout,datev,deet,npas,ni,nj,nk,ip1,ip2,ip3,typvar,nomvar,etiket,grtyp,ig1,ig2,ig3,ig4,datyp,.false.)
+    if(z_ify .and. (grtyp == '#')) then
+      grtyp = 'Z'
+      ig3 = 0
+      ig4 = 0
+    endif
+    call fstecr(array,array,-nbits,fstdout,dateo,deet,npas,ni,nj,nk,ip1,ip2,ip3,typvar,nomvar,etiket,grtyp,ig1,ig2,ig3,ig4,datyp,.false.)
 111 status = fstsui(fstdin,ni,nj,nk)
   enddo
   print *,'INFO: number of records read and written =',nrec
@@ -167,7 +180,7 @@ program re_tag_scale
 end program
 subroutine print_usage()
   implicit none
-  print *,'USAGE: u.re_tag_date old_standard_file new_standard_file new_date'
+  print *,'USAGE: u.re_tag_date old_standard_file new_standard_file new_date|-z'
   call qqexit(1)
 end subroutine
 subroutine printstats(z,ni,nj)
