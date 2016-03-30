@@ -14,6 +14,15 @@ cleanup_dirs() {
   rsync -aruvxlH --delete Data/Input ${exper_archive}/${exper}.snapshot/.
   rm -rf Data/Input SHM/storage_model
   [[ "${SHM_VAR}" == /dev/shm* ]] && rm -rf ${SHM_VAR}
+  [[ -f outcfg.out.orig ]] && mv outcfg.out.orig outcfg.out
+}
+# save runtime directories upon crash, no arguments
+save_crash() {
+  [[ ${SaVeCrAsH} == false ]] && return
+  Snapshot=${exper_archive}/${exper}.crash.$(date +%F-%k_%M_%S)
+  mkdir -p ${Snapshot}
+  rsync -aruvxlH --delete SHM/storage_model ${Snapshot}/.
+  unset Snapshot
 }
 # process restart = .true|false. line in sps.cfg if there is one. call sequence is : fix_sps_cfg true|false
 fix_sps_cfg_restart() {

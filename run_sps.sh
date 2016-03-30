@@ -1,5 +1,6 @@
 #!/bin/bash
 #
+trap 'trap "" 0 1 2 3 4 5 6 7 8 10 12 13 14 15 ; echo "User requested abort" ; save_crash; cleanup_dirs ; exit 1' 2
 usage()
 {
 cat <<EOT
@@ -8,6 +9,7 @@ cat <<EOT
         -s|--start      force currrent date = start date
         -n|--noretry    no retry in case of sps error
         -r|--retry      retry once in case of sps error [default]
+        -c|--savecrash  save storage_model upon crash or ControlC
         -d|--debug      send listing to screen rather than to file
         -gdb|--gdb      start under gdb (GNU debugger) (1x1 configuration recommended)
         -idb|--idb      start under idb (Intel debugger) (1x1 configuration recommended)
@@ -18,12 +20,14 @@ exit 0
 #
 ForceStart=""
 ErrorRetry="yes"
+export SaVeCrAsH="false"
 while [[ $# -gt 0 ]] ; do
    case $1 in
       (-h|--help)           usage   ;;
       (-s|--start)          ForceStart="yes"   ;;
       (-n|--noretry)        ErrorRetry=""   ;;
       (-r|--retry)          ErrorRetry="yes"   ;;
+      (-c|--savecrash)      SaVeCrAsH="true"   ;;
       (-v|--verbose)        VeRbOsE="-x"   ;;
       (-d|--debug)          SPS_DEBUG="yes" ;;
       (-gdb|--gdb)          export RUN_IN_PARALLEL_EXTRAS="${RUN_IN_PARALLEL_EXTRAS} -preexec gdb"       ; SPS_DEBUG="yes" ;;
@@ -44,7 +48,7 @@ if tty -s ; then    # interactive case, raise default memory limits
   mkdir -p /dev/shm/${USER}
   export RAMDISK=/dev/shm/${USER}   # RAMDISK in defined for batch jobs on guillimin
 fi
-[[ -d ${RAMDISK} ]] && ln -s ${RAMDISK} SHM
+[[ -d ${RAMDISK} ]] && mkdir -p ${RAMDISK}/sps_$$ && ln -s ${RAMDISK}/sps_$$ SHM
 #
 unset FatalError
 ((FatalError=0))
@@ -186,7 +190,7 @@ do
     Retry=""
     Failed=""
     sps.ksh ${exper_cpu_config} >${exper_archive}/${exper}/Listings/sps_${exper_current_date:-${exper_start_date}}${Extension}.lst 2>&1 \
-      || { Retry="$ErrorRetry" ; Failed="yes" ; }
+      || { Retry="$ErrorRetry" ; Failed="yes" ; save_crash ; }
     if [[ -n ${Retry} ]] ; then  # attempt no 1 failed and ErrorRetry is yes
       Failed=""
       sps.ksh ${exper_cpu_config2} >${exper_archive}/${exper}/Listings/sps_${exper_current_date:-${exper_start_date}}${Extension}.lst.2 2>&1 \
