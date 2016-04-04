@@ -47,7 +47,8 @@ echo "INFO: running from ${StepStartDate} to ${StepEndDate}, (${Delta})"
 [[ -d Data/Input ]] || { echo "ERROR: directory Data/Input does not exist" ; exit 1 ; }
 #
 rm -f Data/Input/anal     # get rid of old initial conditions file
-[[ -f "${exper_anal0}" ]] && \
+((exper_current_year<=1)) && \
+  [[ -f "${exper_anal0}" ]] && \
   [[ ${exper_anal0##*/} == anal_*_${StepStartDate} ]] && \
   cp ${exper_anal0} Data/Input/anal_${StepStartDate} &&
   echo "INFO: copying ${exper_anal0} as Data/Input/anal_${StepStartDate}"
