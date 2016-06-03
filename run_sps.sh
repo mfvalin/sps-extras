@@ -60,13 +60,16 @@ unset FatalError
 source ./configexp.cfg
 #
 [[ -d sps_Linux_x86-64.Abs ]] && echo "ERROR: expecting file for sps_Linux_x86-64.Abs"              && ((FatalError=FatalError+1))
+[[ -n ${exper_dir_Abs} ]]     && rm -f sps_${BASE_ARCH}.Abs   \
+                              && ln -s ${exper_dir_Abs}/build-Linux_x86-64/sps_Linux_x86-64.Abs sps_Linux_x86-64.Abs
 [[ -x sps_Linux_x86-64.Abs ]] || ln -sf "${exper_abs:-/dev/null}" sps_Linux_x86-64.Abs
 [[ -x sps_Linux_x86-64.Abs ]] || { echo "ERROR: cannot find executable sps_Linux_x86-64.Abs"         ; ((FatalError=FatalError+1)) ; }
 [[ -r ${SPS_phy_intable} ]]   || { echo "ERROR: cannot find ${SPS_phy_intable:-physics_input_table}" ; ((FatalError=FatalError+1)) ; }
 [[ -r ${SPS_dyn_intable} ]]   || { echo "ERROR: cannot find ${SPS_dyn_intable:-dyn_input_table}"     ; ((FatalError=FatalError+1)) ; }
+[[ -d ${exper_archive} ]]     || mkdir -p ${exper_archive} ]]
 [[ -d ${exper_archive} ]]     || { echo "ERROR: archival directory not found"                        ; ((FatalError=FatalError+1)) ; }
-[[ -L ArchiveDirectory ]] && rm -f ArchiveDirectory
-[[ -d ${exper_archive} ]]   && [[ ! -r ArchiveDirectory ]]  && ln -s ${exper_archive} ArchiveDirectory
+[[ -L ArchiveDirectory ]]     && rm -f ArchiveDirectory
+[[ -d ${exper_archive} ]]     && [[ ! -r ArchiveDirectory ]]  && ln -s ${exper_archive} ArchiveDirectory
 #
 [[ -L SHM && -d SHM ]]        || { echo "ERROR: SHM must be a soft link to an existing directory"    ; ((FatalError=FatalError+1)) ;}
 #
