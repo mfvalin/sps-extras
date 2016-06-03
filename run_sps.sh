@@ -60,8 +60,8 @@ unset FatalError
 source ./configexp.cfg
 #
 [[ -d sps_Linux_x86-64.Abs ]] && echo "ERROR: expecting file for sps_Linux_x86-64.Abs"              && ((FatalError=FatalError+1))
-[[ -n ${exper_dir_Abs} ]]     && rm -f sps_Linux_x86-64.Abs   \
-                              && ln -s ${exper_dir_Abs}/build-Linux_x86-64/sps_Linux_x86-64.Abs sps_Linux_x86-64.Abs
+[[ -n ${exper_dir_abs} ]]     && rm -f sps_Linux_x86-64.Abs   \
+                              && ln -s ${exper_dir_abs}/build-Linux_x86-64/sps_Linux_x86-64.Abs sps_Linux_x86-64.Abs
 [[ -x sps_Linux_x86-64.Abs ]] || ln -sf "${exper_abs:-/dev/null}" sps_Linux_x86-64.Abs
 [[ -x sps_Linux_x86-64.Abs ]] || { echo "ERROR: cannot find executable sps_Linux_x86-64.Abs"         ; ((FatalError=FatalError+1)) ; }
 [[ -r ${SPS_phy_intable} ]]   || { echo "ERROR: cannot find ${SPS_phy_intable:-physics_input_table}" ; ((FatalError=FatalError+1)) ; }
