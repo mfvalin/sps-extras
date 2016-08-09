@@ -36,7 +36,7 @@ u.re_tag_date OUT/*/pm${FileDate}000000-00-00_000000h OUT/${exper}_${FileDate} -
 #
 mkdir -p ${exper_archive}/${exper}/Samples  ${exper_archive}/${exper}/Analysis
 chmod 644 OUT/${exper}_${FileDate}
-u.re_tag_date OUT/*/pm${FileDate}000000-00-00_000000h OUT/${exper}_${FileDate}+ -z -a --repack $(exper_repack:-0,0}
+u.re_tag_date OUT/*/pm${FileDate}000000-00-00_000000h OUT/${exper}_${FileDate}+ -z --repack ${exper_repack:-0,0}
 cp OUT/${exper}_${FileDate}+ ${exper_archive}/${exper}/Samples/${exper}_${FileDate}${Extension} &
 #
 # extract last time frame to be used as part of initial conditions for next integration

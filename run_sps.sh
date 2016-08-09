@@ -69,7 +69,7 @@ source ./configexp.cfg
 [[ -d ${exper_archive} ]]     || mkdir -p ${exper_archive} ]]
 [[ -d ${exper_archive} ]]     || { echo "ERROR: archival directory not found"                        ; ((FatalError=FatalError+1)) ; }
 [[ -L ArchiveDirectory ]]     && rm -f ArchiveDirectory
-[[ -d ${exper_archive} ]]     && [[ ! -r ArchiveDirectory ]]  && ln -s ${exper_archive} ArchiveDirectory
+[[ -d ${exper_archive} ]]     && [[ ! -r ArchiveDirectory ]]  && ln -s ${exper_archive}/${exper} ArchiveDirectory
 #
 [[ -L SHM && -d SHM ]]        || { echo "ERROR: SHM must be a soft link to an existing directory"    ; ((FatalError=FatalError+1)) ;}
 #
