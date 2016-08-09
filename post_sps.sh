@@ -72,8 +72,8 @@ rm -f editfst2.dir
 #
 # we can now get rid of previous driving data files
 #
-echo rm Data/Input/inrep/*${FileDate%??}
-rm Data/Input/inrep/*${FileDate%??}
+echo rm -f Data/Input/inrep/*${FileDate%??}
+rm -f Data/Input/inrep/*${FileDate%??}
 #
 wait   # for copy to archive completion
 rm -f OUT/${exper}_${FileDate} OUT/${exper}_${FileDate}+
