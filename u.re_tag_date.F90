@@ -183,11 +183,11 @@ program re_tag_scale
       print *,'INFO: FB renamed N4'
       nomvar = 'N4  '
     endif
-    if (nomvar == 'TM  ' .and. fix_records) then  ! TM converted to Celsius
-      rescaled = rescaled + 1
-      print *,'INFO: TM converted to Celsius '
-      call rescale(array,ni,nj,1.0,-273.16)
-    endif
+!     if (nomvar == 'TM  ' .and. fix_records) then  ! TM converted to Celsius
+!       rescaled = rescaled + 1
+!       print *,'INFO: TM converted to Celsius '
+!       call rescale(array,ni,nj,1.0,-273.16)
+!     endif
     if(z_ify .and. (grtyp == '#')) then
       grtyp = 'Z'
       ig3 = 0
