@@ -18,12 +18,18 @@ program re_tag_scale
   character(len=64) :: force_z, command
   integer :: newig1, newig2
   integer :: renamed, rescaled, suppressed, zeroed
-  logical :: fix_records, z_ify
+  logical :: fix_records, z_ify, force_a, image
   character(len=4), dimension(8) :: fix_lvl_vars
   integer :: fix_lvl_ip1 = -1
+  integer :: only_ip2 = -1
   integer :: current_arg
+  integer :: new_datyp, new_nbits
 
   fix_records = .false.
+  image = .true.
+  force_a = .false.
+  new_datyp = -1
+  new_nbits = -1
   fix_lvl_vars = ['T5  ','T9  ','TAMN','TAMX','TADM','QADM','UADM','VADM']
   nargs = command_argument_count()
   if(nargs < 3) call print_usage
@@ -43,6 +49,30 @@ program re_tag_scale
     if(trim(command) == '--FIX' .or. trim(command) == '--fix') then
       fix_records = .true.
       print *,'INFO: fix_records mode active'
+      image = .false.   ! disallow image mode because of potential rescaling
+      cycle
+    endif
+    if(trim(command) == '-A' .or. trim(command) == '-a') then  ! force typvar to 'A'
+      force_a = .true.
+      print *,'INFO: forcing typvar to A'
+      cycle
+    endif
+    if(trim(command) == '--IP2' .or. trim(command) == '--ip2') then  ! only take records with this value of ip2
+      if(nargs < current_arg) goto 777
+      call GET_COMMAND_ARGUMENT(current_arg,command)
+      current_arg = current_arg + 1
+      read(command,*,err=777)only_ip2
+      print 100,'INFO: selecting only ip2 == ',trim(command)
+100 format(A,20A5)
+      cycle
+    endif
+    if(trim(command) == '--REPACK' .or. trim(command) == '--repack') then  ! only take records with this value of ip2
+      if(nargs < current_arg) goto 777
+      call GET_COMMAND_ARGUMENT(current_arg,command)
+      current_arg = current_arg + 1
+      read(command,*,err=777)new_datyp,new_nbits
+      print 100,'INFO: repacking with data_type, nbits =  ',trim(command)
+      image = .false.   ! disallow image mode if repacking
       cycle
     endif
     if(trim(command) == '--IP1' .or. trim(command) == '--ip1') then
@@ -52,19 +82,18 @@ program re_tag_scale
       read(command,*,err=777)fix_lvl_ip1
       print 100,'INFO: setting ip1 to 0 if ip1 == ',trim(command)
       print 100,'      for variables :',fix_lvl_vars
-100 format(A,20A5)
       cycle
     endif
     read(command,*,err=777)newig1,newig2
-    print *,'forcing Z descriptors to',newig1,newig2
+    print *,'forcing Z descriptors ig1, ig2 to',newig1,newig2
   enddo
 
-  print *,'u.re_tag_scale '//trim(old_file)//' '//trim(new_file)//' '//trim(the_new_date)
+  print *,'u.re_tag_date '//trim(old_file)//' '//trim(new_file)//' '//trim(the_new_date)
   if(trim(the_new_date) == '-z') then
     new_dateo = -1
     z_ify = .true.
     i = fstopl('FASTIO', .true., .false.)
-    i = fstopl('IMAGE', .true., .false.)
+    i = fstopl('IMAGE', image, .false.)
     i = fstopi("MSGLVL",4,.false.)
   else
     read(the_new_date,*)new_dateo
@@ -164,6 +193,12 @@ program re_tag_scale
       ig3 = 0
       ig4 = 0
     endif
+    if(only_ip2 .ne. -1 .and. ip2 .ne. only_ip2 .and. nomvar .ne. '>>  ' .and. nomvar .ne. '^^  ' ) cycle
+    if(force_a) typvar = 'A'
+    if(new_datyp > 0 .and. ni > 1 .and. nj > 1 .and. new_nbits > 0 .and. image == .false.) then  ! repacking, is a grid, not image mode
+      datyp = new_datyp
+      nbits = new_nbits
+    endif
     call fstecr(array,array,-nbits,fstdout,dateo,deet,npas,ni,nj,nk,ip1,ip2,ip3,typvar,nomvar,etiket,grtyp,ig1,ig2,ig3,ig4,datyp,.false.)
 111 status = fstsui(fstdin,ni,nj,nk)
   enddo
@@ -180,7 +215,7 @@ program re_tag_scale
 end program
 subroutine print_usage()
   implicit none
-  print *,'USAGE: u.re_tag_date old_standard_file new_standard_file new_date|-z'
+  print *,'USAGE: u.re_tag_date old_stdf new_stdf new_date|-z [-a] [--ip2 value] [--ip1 value] [--fix] [--repack datyp,nbits]'
   call qqexit(1)
 end subroutine
 subroutine printstats(z,ni,nj)
