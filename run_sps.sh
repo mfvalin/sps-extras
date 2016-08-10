@@ -101,6 +101,8 @@ SHM_VAR=$(readlink -e SHM)
 [[ -d SHM/storage_model ]]    ||  { echo "ERROR: SHM/storage_model directory not found"                ; ((FatalError=FatalError+1)) ; }
 [[ -d SHM/Data/Input/inrep ]] ||  { echo "ERROR: SHM/Data/Input/inrep directory not found"             ; ((FatalError=FatalError+1)) ; }
 #
+cleanup_crash    # in case this is a restart after a crash/kill
+#
 rm -f Data
 [[ -d Data ]] && { echo "ERROR: Data is an existing directory and should not"                          ; ((FatalError=FatalError+1)) ;}
 ln -s SHM/Data Data
@@ -144,6 +146,7 @@ fi
 #
 while true
 do
+  touch Data/RunFlag        # flag start of pre/sps/post sequence
   source ./configexp.cfg    # get updated values from ./configexp.cfg
   if ((exper_current_date==exper_start_date)) ; then  # conditionally set restart = .false.
     fix_sps_cfg_restart false
@@ -156,12 +159,14 @@ do
   #
   if ((${exper_cycle_year:-999999}==0)) ; then             # requested number of integration years done
     echo "INFO: prescribed number of years of integration done"
+    rm -f Data/RunFlag   # successful pre/sps/post sequence
     cleanup_dirs
     exit 0
   fi
   #
   if ((exper_current_date>exper_end_date)) ; then          # end date reached
     echo "INFO: last date reached: ${exper_end_date}"      # exper_current_date is updated by post_sps.sh
+    rm -f Data/RunFlag   # successful pre/sps/post sequence
     cleanup_dirs
     exit 0
   fi
@@ -169,6 +174,7 @@ do
   if ((exper_current_date==exper_end_date)) ; then         # end date really reached ?
     if [[ -z ${extra_time} && -z ${extra_steps} && -z ${extra_hours} ]] ; then   # if extra_time is present, we are not done yet
       echo "INFO: last date reached: ${exper_end_date}"
+      rm -f Data/RunFlag   # successful pre/sps/post sequence
       cleanup_dirs
       exit 0
     fi
@@ -210,4 +216,5 @@ do
   source ./configexp.cfg
   [[ "${exper_current_date}" != "${exper_fold_date}" ]] && rm -f Data/Input/anal_${exper_fold_date}     # remove unneeded file
   #
+  rm -f Data/RunFlag   # successful pre/sps/post sequence
 done
