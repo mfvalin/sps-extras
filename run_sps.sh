@@ -19,7 +19,7 @@ exit 0
 }
 #
 ForceStart=""
-ErrorRetry="yes"
+ErrorRetry=""
 export SaVeCrAsH="false"
 while [[ $# -gt 0 ]] ; do
    case $1 in
