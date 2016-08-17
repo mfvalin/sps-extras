@@ -93,21 +93,21 @@ if ((Nfiles == 0));then
   exit 1
 fi
 #ls -l Data/Input/inrep/*_${StepStartDate%??}
-#
-# get driving data files for next month (if available and not already there)
-# (same rules as driving data for this month)
-#
+###
+### get driving data files for next month (if available and not already there)
+### (same rules as driving data for this month)
+###
 #ls -l ${exper_depot2}/*_${StepEndDate%??} ${exper_depot2}/*_${StepEndDate%??}
-for Target in $(ls -1 ${exper_depot1}/*_${StepEndDate%??} ${exper_depot2}/*_${StepEndDate%??} )
-do
-  Target2=${Target##*/}
-  if [[ -r Data/Input/inrep/${Target2} ]] ; then
-    echo "INFO: ${Target2} found in Data/Input/inrep/"
-  else
-    cp ${Target} Data/Input/inrep/.    # file not already there,  copy it
-    echo "INFO: using ${Target}"
-  fi
-done
+###for Target in $(ls -1 ${exper_depot1}/*_${StepEndDate%??} ${exper_depot2}/*_${StepEndDate%??} )
+###do
+###  Target2=${Target##*/}
+###  if [[ -r Data/Input/inrep/${Target2} ]] ; then
+###    echo "INFO: ${Target2} found in Data/Input/inrep/"
+###  else
+###    cp ${Target} Data/Input/inrep/.    # file not already there,  copy it
+###    echo "INFO: using ${Target}"
+###  fi
+###done
 #ls -l Data/Input/inrep/*_${StepStartDate%??}
 #
 # calculate length of integration in hours and time steps (how many in this month)
