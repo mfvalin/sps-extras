@@ -1,4 +1,6 @@
 program re_tag_scale
+!s.f90 -no-wrap-margin -O 2 -o u.re_tag_date u.re_tag_date.F90 -lrmn_015.3
+!with intel compiler, use -no-wrap-margin to avoid output line wrap at column 80
   use ISO_C_BINDING
   implicit none
   integer :: nargs
