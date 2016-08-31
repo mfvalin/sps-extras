@@ -101,6 +101,8 @@ SHM_VAR=$(readlink -e SHM)
 [[ -d SHM/storage_model ]]    ||  { echo "ERROR: SHM/storage_model directory not found"                ; ((FatalError=FatalError+1)) ; }
 [[ -d SHM/Data/Input/inrep ]] ||  { echo "ERROR: SHM/Data/Input/inrep directory not found"             ; ((FatalError=FatalError+1)) ; }
 #
+source functions_sps.dot
+#
 cleanup_crash    # in case this is a restart after a crash/kill
 #
 rm -f Data
@@ -124,8 +126,6 @@ if [[ -d storage_model ]] ; then
   storage_model=$(readlink -e storage_model)
 fi
 export storage_model
-#
-source functions_sps.dot
 #
 if [[ -d ${exper_archive}/${exper}.snapshot ]] ; then   # there is a snapshot, use it
   rsync -aruvxlH ${exper_archive}/${exper}.snapshot/. Data/.
