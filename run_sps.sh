@@ -47,8 +47,10 @@ if tty -s ; then    # interactive case, raise default memory limits
   ulimit -d 8000000
   mkdir -p /dev/shm/${USER}
   export RAMDISK=/dev/shm/${USER}   # RAMDISK in defined for batch jobs on guillimin
+  [[ -d ${RAMDISK} ]] && mkdir -p ${RAMDISK}/sps_$PPID && ln -s ${RAMDISK}/sps_$PPID SHM
+else
+  [[ -d ${RAMDISK} ]] && mkdir -p ${RAMDISK}/sps_$$ && ln -s ${RAMDISK}/sps_$$ SHM
 fi
-[[ -d ${RAMDISK} ]] && mkdir -p ${RAMDISK}/sps_$$ && ln -s ${RAMDISK}/sps_$$ SHM
 #
 unset FatalError
 ((FatalError=0))
@@ -77,7 +79,8 @@ source ./configexp.cfg
 #
 rm -f OUT
 [[ -d OUT ]] && { echo "ERROR: OUT is an existing directory and should not"                          ; ((FatalError=FatalError+1)) ;}
-ln -s __workdir__Linux_x86-64/output/cfg_0000 OUT
+[[ -z ${sps_version} ]] && ln -s __workdir__Linux_x86-64/output/cfg_0000 OUT
+[[ "${sps_version}" == 5.8* ]] && ln -s build-linux26-x86-64/run/RUNMOD/output/cfg_0000 OUT
 #
 rm -f storage_model
 [[ -d storage_model ]] && { echo "ERROR: storage_model is an existing directory and should not"      ; ((FatalError=FatalError+1)) ;}
@@ -126,6 +129,10 @@ if [[ -d storage_model ]] ; then
   storage_model=$(readlink -e storage_model)
 fi
 export storage_model
+if [[ "${sps_version}" == 5.8* ]] ; then
+  sps-linkit
+  rm Makefile* .linkit.log .rde.config.dot
+fi
 #
 if [[ -d ${exper_archive}/${exper}.snapshot ]] ; then   # there is a snapshot, use it
   rsync -aruvxlH ${exper_archive}/${exper}.snapshot/. Data/.
@@ -165,13 +172,16 @@ do
   fi
   #
   if ((exper_current_date>exper_end_date)) ; then          # end date reached
-    echo "INFO: last date reached: ${exper_end_date}"      # exper_current_date is updated by post_sps.sh
+    echo "INFO: last date exceeded: ${exper_end_date}"      # exper_current_date is updated by post_sps.sh
     rm -f Data/RunFlag   # successful pre/sps/post sequence
     cleanup_dirs
     exit 0
   fi
   #
   if ((exper_current_date==exper_end_date)) ; then         # end date really reached ?
+    [[ "${extra_time}" == 00:00:00 ]] && extra_time=""
+    ((extra_steps==0)) && extra_steps=""
+    ((extra_hours==0)) && extra_hours=""
     if [[ -z ${extra_time} && -z ${extra_steps} && -z ${extra_hours} ]] ; then   # if extra_time is present, we are not done yet
       echo "INFO: last date reached: ${exper_end_date}"
       rm -f Data/RunFlag   # successful pre/sps/post sequence
