@@ -66,6 +66,7 @@ source ./configexp.cfg
                               && ln -s ${exper_dir_abs}/build-Linux_x86-64/sps_Linux_x86-64.Abs sps_Linux_x86-64.Abs
 [[ -x sps_Linux_x86-64.Abs ]] || ln -sf "${exper_abs:-/dev/null}" sps_Linux_x86-64.Abs
 [[ -x sps_Linux_x86-64.Abs ]] || { echo "ERROR: cannot find executable sps_Linux_x86-64.Abs"         ; ((FatalError=FatalError+1)) ; }
+#
 [[ -r ${SPS_phy_intable} ]]   || { echo "ERROR: cannot find ${SPS_phy_intable:-physics_input_table}" ; ((FatalError=FatalError+1)) ; }
 [[ -r ${SPS_dyn_intable} ]]   || { echo "ERROR: cannot find ${SPS_dyn_intable:-dyn_input_table}"     ; ((FatalError=FatalError+1)) ; }
 [[ -d ${exper_archive} ]]     || mkdir -p ${exper_archive} ]]
@@ -130,7 +131,9 @@ if [[ -d storage_model ]] ; then
 fi
 export storage_model
 if [[ "${sps_version}" == 5.8* ]] ; then
+  mv sps_Linux_x86-64.Abs sps_Linux_x86-64.Abs_from_config     # save Abs from config file, sps-linkit would overwrite it
   sps-linkit
+  [[ -x sps_Linux_x86-64.Abs_from_config ]] && rm sps_Linux_x86-64.Abs && mv sps_Linux_x86-64.Abs_from_config sps_Linux_x86-64.Abs
   rm Makefile* .linkit.log .rde.config.dot
 fi
 #
