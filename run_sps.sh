@@ -69,7 +69,7 @@ source ./configexp.cfg
 #
 [[ -r ${SPS_phy_intable} ]]   || { echo "ERROR: cannot find ${SPS_phy_intable:-physics_input_table}" ; ((FatalError=FatalError+1)) ; }
 [[ -r ${SPS_dyn_intable} ]]   || { echo "ERROR: cannot find ${SPS_dyn_intable:-dyn_input_table}"     ; ((FatalError=FatalError+1)) ; }
-[[ -d ${exper_archive} ]]     || mkdir -p ${exper_archive} ]]
+#[[ -d ${exper_archive} ]]     || mkdir -p ${exper_archive} ]]
 [[ -d ${exper_archive} ]]     || { echo "ERROR: archival directory not found"                        ; ((FatalError=FatalError+1)) ; }
 [[ -L ArchiveDirectory ]]     && rm -f ArchiveDirectory
 [[ -d ${exper_archive} ]]     && [[ ! -r ArchiveDirectory ]]  && ln -s ${exper_archive}/${exper} ArchiveDirectory
