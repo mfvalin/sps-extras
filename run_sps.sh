@@ -63,7 +63,7 @@ source ./configexp.cfg
 #
 [[ -d sps_Linux_x86-64.Abs ]] && echo "ERROR: expecting file for sps_Linux_x86-64.Abs"              && ((FatalError=FatalError+1))
 [[ -n ${exper_dir_abs} ]]     && rm -f sps_Linux_x86-64.Abs   \
-                              && ln -s ${exper_dir_abs}/build-Linux_x86-64/sps_Linux_x86-64.Abs sps_Linux_x86-64.Abs
+                              && ln -s ${exper_dir_abs}/build-${ORDENV_PLAT}/bin/${COMP_ARCH}/sps_Linux_x86-64.Abs sps_Linux_x86-64.Abs
 [[ -x sps_Linux_x86-64.Abs ]] || ln -sf "${exper_abs:-/dev/null}" sps_Linux_x86-64.Abs
 [[ -x sps_Linux_x86-64.Abs ]] || { echo "ERROR: cannot find executable sps_Linux_x86-64.Abs"         ; ((FatalError=FatalError+1)) ; }
 #
@@ -72,6 +72,7 @@ source ./configexp.cfg
 #[[ -d ${exper_archive} ]]     || mkdir -p ${exper_archive} ]]
 [[ -d ${exper_archive} ]]     || { echo "ERROR: archival directory not found"                        ; ((FatalError=FatalError+1)) ; }
 [[ -L ArchiveDirectory ]]     && rm -f ArchiveDirectory
+[[ -d ${exper_archive}/${exper} ]] || mkdir -p ${exper_archive}/${exper}
 [[ -d ${exper_archive} ]]     && [[ ! -r ArchiveDirectory ]]  && ln -s ${exper_archive}/${exper} ArchiveDirectory
 #
 [[ -L SHM && -d SHM ]]        || { echo "ERROR: SHM must be a soft link to an existing directory"    ; ((FatalError=FatalError+1)) ;}
@@ -81,7 +82,7 @@ source ./configexp.cfg
 rm -f OUT
 [[ -d OUT ]] && { echo "ERROR: OUT is an existing directory and should not"                          ; ((FatalError=FatalError+1)) ;}
 [[ -z ${sps_version} ]] && ln -s __workdir__Linux_x86-64/output/cfg_0000 OUT
-[[ "${sps_version}" == 5.8* ]] && ln -s build-linux26-x86-64/run/RUNMOD/output/cfg_0000 OUT
+[[ "${sps_version}" == 5.8* ]] && ln -s build-${ORDENV_PLAT}/run/RUNMOD/output/cfg_0000 OUT
 #
 rm -f storage_model
 [[ -d storage_model ]] && { echo "ERROR: storage_model is an existing directory and should not"      ; ((FatalError=FatalError+1)) ;}
@@ -131,6 +132,7 @@ if [[ -d storage_model ]] ; then
 fi
 export storage_model
 if [[ "${sps_version}" == 5.8* ]] ; then
+  rm -f build-${ORDENV_PLAT}
   mv sps_Linux_x86-64.Abs sps_Linux_x86-64.Abs_from_config     # save Abs from config file, sps-linkit would overwrite it
   sps-linkit
   [[ -x sps_Linux_x86-64.Abs_from_config ]] && rm sps_Linux_x86-64.Abs && mv sps_Linux_x86-64.Abs_from_config sps_Linux_x86-64.Abs
