@@ -6,6 +6,7 @@ usage()
 cat <<EOT
  USAGE: ${0##*/} [-h|--help] [-v|--verbose] [-d|--debug] [-gdb|--gdb] [-idb|--idb] [-preexec|--preexec ....]
         -v|--verbose    echo commands in ${0##*/}
+        -f|--nosnap     ignore snapshot, force continuation date from config file
         -s|--start      force currrent date = start date
         -n|--noretry    no retry in case of sps error
         -r|--retry      retry once in case of sps error [default]
@@ -19,11 +20,13 @@ exit 0
 }
 #
 ForceStart=""
+NoSnapshot=""
 ErrorRetry=""
 export SaVeCrAsH="false"
 while [[ $# -gt 0 ]] ; do
    case $1 in
       (-h|--help)           usage   ;;
+      (-f|--nosnap)         NoSnapshot="yes"   ;;
       (-s|--start)          ForceStart="yes"   ;;
       (-n|--noretry)        ErrorRetry=""   ;;
       (-r|--retry)          ErrorRetry="yes"   ;;
@@ -139,7 +142,8 @@ if [[ "${sps_version}" == 5.8* ]] ; then
   rm Makefile* .linkit.log .rde.config.dot
 fi
 #
-if [[ -d ${exper_archive}/${exper}.snapshot ]] ; then   # there is a snapshot, use it
+#[[ ${NoSnapshot} == yes ]] && rm -rf ${exper_archive}/${exper}.snapshot
+if [[ -d ${exper_archive}/${exper}.snapshot && -z  ${NoSnapshot} ]] ; then   # there is a snapshot, use it unless told not to
   rsync -aruvxlH ${exper_archive}/${exper}.snapshot/. Data/.
   echo  "INFO: syncing run directory from ${exper_archive}/${exper}.snapshot"
 fi
