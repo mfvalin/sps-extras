@@ -11,8 +11,8 @@ update_cfg() {
 # clean runtime directories without saving anything in case of crash/kill
 cleanup_crash() {
   [[ -f Data/RunFlag ]] || return         # nothing crashed/killed
-  [[ -d Data/Input ]] && rm -rf Data/Input
-  [[ -d SHM/storage_model ]] && rm -rf SHM/storage_model
+  [[ -d Data/Input ]] && rm -rf Data/Input && mkdir -p Data/Input/inrep
+  [[ -d SHM/storage_model ]] && rm -rf SHM/storage_model && mkdir SHM/storage_model
   [[ -f outcfg.out.orig ]] && mv outcfg.out.orig outcfg.out
 #  rm -rf ${exper_archive}/${exper}.snapshot
   rm -f Data/RunFlag
